@@ -140,7 +140,6 @@ main {
     cursor: pointer;
 }
 
-.rules-box,
 .betting-section,
 .playoff-section,
 .match-day {
@@ -148,6 +147,110 @@ main {
     padding: 1.5rem;
     border-radius: 10px;
     margin-bottom: 2rem;
+}
+
+.rules-box {
+    background: white;
+    border-radius: 24px;
+    padding: 2rem;
+    margin-top: 2rem;
+
+    border: 1px solid #e5e7eb;
+
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.04);
+}
+
+.rules-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 2rem;
+}
+
+.rules-header h3 {
+    margin: 0;
+}
+
+.rules-badge {
+    background: #dbeafe;
+    color: #1d4ed8;
+
+    padding: 0.5rem 0.9rem;
+
+    border-radius: 999px;
+
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.rules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+}
+
+.rule-card {
+    display: flex;
+    gap: 1rem;
+
+    padding: 1.2rem;
+
+    border-radius: 18px;
+
+    background:
+        linear-gradient(180deg,
+            #ffffff,
+            #f9fafb);
+
+    border: 1px solid #e5e7eb;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.rule-card:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.06);
+}
+
+.rule-points {
+    min-width: 64px;
+    height: 64px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 16px;
+
+    background: #111827;
+    color: white;
+
+    font-weight: 700;
+    font-size: 1.1rem;
+
+    font-family: var(--font-mono);
+}
+
+.rule-card h4 {
+    margin-bottom: 0.3rem;
+}
+
+.rule-card p {
+    font-size: 0.95rem;
+}
+
+.rules-footer {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+    color: #6b7280;
+    font-size: 0.95rem;
 }
 
 .match-card {
