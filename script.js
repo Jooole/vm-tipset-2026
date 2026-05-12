@@ -1,0 +1,1 @@
+console.log("VM-tipset är igång!");
