@@ -1,4 +1,120 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 body {
     font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    color: #222;
+}
+
+.main-header {
+    background: #111827;
+    color: white;
+    padding: 1rem;
+}
+
+.main-header h1 {
+    margin-bottom: 1rem;
+}
+
+nav {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.nav-btn {
+    padding: 0.6rem 1rem;
+    border: none;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+.nav-btn.active {
+    background: #2563eb;
+    color: white;
+}
+
+main {
     padding: 2rem;
+}
+
+.page {
+    display: none;
+}
+
+.page.active {
+    display: block;
+}
+
+.hero {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+}
+
+#countdown {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 1rem 0;
+}
+
+#cta-btn,
+.save-btn {
+    margin-top: 1rem;
+    padding: 1rem 1.5rem;
+    border: none;
+    background: #16a34a;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.rules-box,
+.betting-section,
+.playoff-section,
+.match-day {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+}
+
+.match-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f9fafb;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+}
+
+.score-inputs {
+    display: flex;
+    gap: 0.5rem;
+}
+
+input,
+textarea {
+    padding: 0.7rem;
+    margin-top: 0.5rem;
+    width: 100%;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+th,
+td {
+    padding: 1rem;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
 }

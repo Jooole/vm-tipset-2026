@@ -2,8 +2,8 @@
 <html lang="sv">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>VM-tipset 2026</title>
 
     <link rel="stylesheet" href="style.css">
@@ -11,7 +11,194 @@
 
 <body>
 
-    <h1>VM-tipset 2026</h1>
+    <!-- HEADER -->
+    <header class="main-header">
+        <h1>VM-tipset 2026</h1>
+
+        <nav>
+            <button class="nav-btn active" data-page="home">Hem</button>
+            <button class="nav-btn" data-page="betting">Min tippning</button>
+            <button class="nav-btn" data-page="leaderboard">Resultat</button>
+            <button class="nav-btn" data-page="matches">Matcher</button>
+        </nav>
+    </header>
+
+    <main>
+
+        <!-- HEM -->
+        <section id="home" class="page active">
+
+            <div class="hero">
+                <h2>VM börjar om:</h2>
+                <div id="countdown">00 dagar 00 timmar 00 minuter</div>
+
+                <p>
+                    Tippa fotbolls-VM 2026 och tävla mot vänner, familj och kollegor.
+                    Insatsen är 100 kr och fina priser väntar vinnaren!
+                </p>
+
+                <button id="cta-btn">
+                    Lämna in din tippning
+                </button>
+            </div>
+
+            <div class="rules-box">
+                <h3>Poängregler</h3>
+
+                <p>
+                    Här kommer reglerna för hur poäng delas ut senare.
+                </p>
+            </div>
+
+        </section>
+
+        <!-- MIN TIPPNING -->
+        <section id="betting" class="page">
+
+            <h2>Min tippning</h2>
+
+            <div class="betting-section">
+
+                <h3>Gruppspelsmatcher</h3>
+
+                <div id="match-list">
+
+                    <div class="match-card">
+                        <span>Argentina - Spanien</span>
+
+                        <div class="score-inputs">
+                            <input type="number" min="0" placeholder="0">
+                            <input type="number" min="0" placeholder="0">
+                        </div>
+                    </div>
+
+                    <div class="match-card">
+                        <span>Brasilien - Tyskland</span>
+
+                        <div class="score-inputs">
+                            <input type="number" min="0" placeholder="0">
+                            <input type="number" min="0" placeholder="0">
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="playoff-section">
+
+                <h3>16-delsfinal</h3>
+                <textarea placeholder="Vilka lag går vidare?"></textarea>
+
+                <h3>8-delsfinal</h3>
+                <textarea placeholder="Vilka lag går vidare?"></textarea>
+
+                <h3>Kvartsfinal</h3>
+                <textarea placeholder="Vilka lag går vidare?"></textarea>
+
+                <h3>Semifinal</h3>
+                <textarea placeholder="Vilka lag går vidare?"></textarea>
+
+                <h3>Final</h3>
+                <textarea placeholder="Vilka lag går vidare?"></textarea>
+
+                <h3>VM-vinnare</h3>
+                <input type="text" placeholder="Vilket lag vinner VM?">
+
+                <h3>Skytteligavinnare</h3>
+                <input type="text" placeholder="Spelare">
+
+                <h3>Antal mål</h3>
+                <input type="number" min="0" placeholder="Mål">
+
+            </div>
+
+            <button class="save-btn">
+                Spara tippning
+            </button>
+
+        </section>
+
+        <!-- RESULTAT -->
+        <section id="leaderboard" class="page">
+
+            <h2>Resultat</h2>
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Placering</th>
+                        <th>Tippare</th>
+                        <th>Poäng</th>
+                        <th>Trend</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr>
+                        <td>1</td>
+                        <td>Anna Andersson</td>
+                        <td>124</td>
+                        <td>⬆️</td>
+                    </tr>
+
+                    <tr>
+                        <td>2</td>
+                        <td>Erik Eriksson</td>
+                        <td>118</td>
+                        <td>⬇️</td>
+                    </tr>
+
+                    <tr>
+                        <td>3</td>
+                        <td>Sara Svensson</td>
+                        <td>117</td>
+                        <td>➡️</td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+        <!-- MATCHER -->
+        <section id="matches" class="page">
+
+            <h2>Matcher & Resultat</h2>
+
+            <div class="match-day">
+
+                <h3>Dagens matcher</h3>
+
+                <div class="match-card">
+                    <span>England - Frankrike</span>
+                    <strong>2 - 1</strong>
+                </div>
+
+                <div class="match-card">
+                    <span>Japan - USA</span>
+                    <strong>1 - 1</strong>
+                </div>
+
+            </div>
+
+            <div class="match-day">
+
+                <h3>Tidigare matcher</h3>
+
+                <div class="match-card">
+                    <span>Mexiko - Portugal</span>
+                    <strong>0 - 3</strong>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
 
     <script src="script.js"></script>
 </body>
