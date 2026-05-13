@@ -251,68 +251,73 @@
             <!-- FILTERS -->
 
             <div class="filters-box">
-                <div class="today-toggle">
+                <h4>Filtrera matcher</h4>
+                <div class="filters">
 
-                    <label class="switch">
+                    <div class="filter-group">
 
-                        <input type="checkbox" id="today-toggle">
+                        <select id="group-select" class="group-select">
 
-                        <span class="slider"></span>
+                            <option value="Alla grupper">
+                                Alla grupper
+                            </option>
 
-                    </label>
+                            <option value="Grupp A">
+                                Grupp A
+                            </option>
 
-                    <span class="toggle-label">
-                        Dagens matcher
-                    </span>
+                            <option value="Grupp B">
+                                Grupp B
+                            </option>
 
-                </div>
+                            <option value="Grupp C">
+                                Grupp C
+                            </option>
 
-                <div class="filter-group">
+                            <option value="Grupp D">
+                                Grupp D
+                            </option>
 
-                    <h4>Filtrera efter grupp</h4>
+                            <option value="Grupp E">
+                                Grupp E
+                            </option>
 
-                    <div class="filter-buttons">
+                            <option value="Grupp F">
+                                Grupp F
+                            </option>
 
-                        <button class="filter-btn active" data-group="Alla grupper">Alla grupper</button>
+                            <option value="Grupp G">
+                                Grupp G
+                            </option>
 
-                        <button class="filter-btn" data-group="Grupp A">Grupp A</button>
-                        <button class="filter-btn" data-group="Grupp B">Grupp B</button>
-                        <button class="filter-btn" data-group="Grupp C">Grupp C</button>
-                        <button class="filter-btn" data-group="Grupp D">Grupp D</button>
-                        <button class="filter-btn" data-group="Grupp E">Grupp E</button>
-                        <button class="filter-btn" data-group="Grupp F">Grupp F</button>
-                        <button class="filter-btn" data-group="Grupp G">Grupp G</button>
-                        <button class="filter-btn" data-group="Grupp H">Grupp H</button>
+                            <option value="Grupp H">
+                                Grupp H
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="today-toggle">
+
+                        <label class="switch">
+
+                            <input type="checkbox" id="today-toggle">
+
+                            <span class="slider"></span>
+
+                        </label>
+
+                        <span class="toggle-label">
+                            Dagens matcher
+                        </span>
 
                     </div>
 
                 </div>
 
-                <div class="filter-group">
 
-                    <h4>Filtrera efter status</h4>
 
-                    <div class="filter-buttons">
-
-                        <button class="filter-btn active" data-status="all">
-                            Alla matcher
-                        </button>
-
-                        <button class="filter-btn" data-status="finished">
-                            Spelade
-                        </button>
-
-                        <button class="filter-btn" data-status="live">
-                            Live
-                        </button>
-
-                        <button class="filter-btn" data-status="upcoming">
-                            Kommande
-                        </button>
-
-                    </div>
-
-                </div>
 
             </div>
 
@@ -328,7 +333,11 @@
 
     </main>
 
-    <script src="script.js"></script>
+    <script src="api.js"></script>
+    <script src="flags.js"></script>
+    <script src="matches.js"></script>
+    <script src="ui.js"></script>
+    <script src="main.js"></script>
 </body>
 
 </html>

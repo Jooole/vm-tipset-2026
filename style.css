@@ -149,6 +149,10 @@ main {
     margin-bottom: 2rem;
 }
 
+.betting-section {
+    margin-top: 1rem;
+}
+
 .rules-box {
     background: white;
     border-radius: 24px;
@@ -240,9 +244,9 @@ main {
     justify-content: space-between;
     align-items: center;
     background: #f9fafb;
-    padding: 1rem;
+    padding: 0.5rem;
     border-radius: 8px;
-    margin-top: 1rem;
+    margin-top: 0.5rem;
 }
 
 .score-inputs {
@@ -252,8 +256,7 @@ main {
 
 input,
 textarea {
-    padding: 0.7rem;
-    margin-top: 0.5rem;
+    padding: 0.25rem;
     width: 100%;
 }
 
@@ -292,13 +295,23 @@ td {
     margin-bottom: 2rem;
 
     display: flex;
+    flex-direction: column;
+}
+
+.filters {
+    display: flex;
     justify-content: space-between;
-    gap: 2rem;
-    flex-wrap: wrap;
+    margin-top: 1rem;
+
+}
+
+.filter-group {
+    flex: 1;
+    min-width: 280px;
 }
 
 .filter-group h4 {
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
 }
 
 .filter-buttons {
@@ -485,13 +498,9 @@ td {
 /* TODAY TOGGLE */
 
 .today-toggle {
-    width: 100%;
-
     display: flex;
     align-items: center;
     gap: 1rem;
-
-    margin-bottom: 2rem;
 }
 
 .toggle-label {
@@ -555,4 +564,38 @@ td {
 
 .switch input:checked+.slider::before {
     transform: translateX(26px);
+}
+
+/* GROUP SELECT */
+
+.group-select {
+    width: 100%;
+    max-width: 500px;
+    padding: 0.5rem 1rem;
+    border-radius: 14px;
+    border: 1px solid #d1d5db;
+    background: white;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #0f172a;
+    cursor: pointer;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.group-select:focus {
+    outline: none;
+
+    border-color: #10b981;
+
+    box-shadow:
+        0 0 0 4px rgba(16, 185, 129, 0.12);
+}
+
+.flag {
+    width: 24px;
+    height: 18px;
+    object-fit: cover;
+    border-radius: 2px;
 }
