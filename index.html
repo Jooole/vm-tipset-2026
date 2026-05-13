@@ -159,6 +159,8 @@
 
             <div class="playoff-section">
 
+                <h3>Slutspelsmatcher</h3>
+
                 <div id="round-of-32"></div>
 
                 <div id="round-of-16"></div>
@@ -171,12 +173,21 @@
 
                 <div id="winner"></div>
 
-                <h3>Skytteligavinnare</h3>
-                <input type="text" placeholder="Spelare">
+            </div>
 
+            <div class="top-scorer-section">
+                <h3>Skytteligan</h3>
+
+                <h4>Skytteligavinnare</h4>
+                <div class="autocomplete">
+
+                    <input type="text" id="topscorer-input" placeholder="Välj spelare" autocomplete="off">
+
+                    <div id="topscorer-results"></div>
+
+                </div>
                 <h3>Antal mål</h3>
                 <input type="number" min="0" placeholder="Mål">
-
             </div>
 
         </section>

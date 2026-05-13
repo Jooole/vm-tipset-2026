@@ -238,3 +238,4 @@ initMatches();
 initMatchFilters();
 initNavigation();
 initCountdown();
+initTopscorerAutocomplete();

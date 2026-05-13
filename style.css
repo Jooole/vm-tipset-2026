@@ -142,6 +142,7 @@ main {
 
 .betting-section,
 .playoff-section,
+.top-scorer-section,
 .match-day {
     background: white;
     padding: 1.5rem;
@@ -156,6 +157,7 @@ main {
 #final,
 #winner {
     margin-bottom: 1rem;
+    margin-top: 0.5rem;
 }
 
 .betting-section {
