@@ -237,34 +237,90 @@
         </section>
 
         <!-- MATCHER -->
+        <!-- MATCHER -->
         <section id="matches" class="page">
 
-            <h2>Matcher & Resultat</h2>
+            <div class="matches-header">
+                <h2>Matcher och resultat</h2>
 
-            <div class="match-day">
+                <p>
+                    Se alla VM-matcher, resultat och kommande möten.
+                </p>
+            </div>
 
-                <h3>Dagens matcher</h3>
+            <!-- FILTERS -->
 
-                <div class="match-card">
-                    <span>England - Frankrike</span>
-                    <strong>2 - 1</strong>
+            <div class="filters-box">
+                <div class="today-toggle">
+
+                    <label class="switch">
+
+                        <input type="checkbox" id="today-toggle">
+
+                        <span class="slider"></span>
+
+                    </label>
+
+                    <span class="toggle-label">
+                        Dagens matcher
+                    </span>
+
                 </div>
 
-                <div class="match-card">
-                    <span>Japan - USA</span>
-                    <strong>1 - 1</strong>
+                <div class="filter-group">
+
+                    <h4>Filtrera efter grupp</h4>
+
+                    <div class="filter-buttons">
+
+                        <button class="filter-btn active" data-group="Alla grupper">Alla grupper</button>
+
+                        <button class="filter-btn" data-group="Grupp A">Grupp A</button>
+                        <button class="filter-btn" data-group="Grupp B">Grupp B</button>
+                        <button class="filter-btn" data-group="Grupp C">Grupp C</button>
+                        <button class="filter-btn" data-group="Grupp D">Grupp D</button>
+                        <button class="filter-btn" data-group="Grupp E">Grupp E</button>
+                        <button class="filter-btn" data-group="Grupp F">Grupp F</button>
+                        <button class="filter-btn" data-group="Grupp G">Grupp G</button>
+                        <button class="filter-btn" data-group="Grupp H">Grupp H</button>
+
+                    </div>
+
+                </div>
+
+                <div class="filter-group">
+
+                    <h4>Filtrera efter status</h4>
+
+                    <div class="filter-buttons">
+
+                        <button class="filter-btn active" data-status="all">
+                            Alla matcher
+                        </button>
+
+                        <button class="filter-btn" data-status="finished">
+                            Spelade
+                        </button>
+
+                        <button class="filter-btn" data-status="live">
+                            Live
+                        </button>
+
+                        <button class="filter-btn" data-status="upcoming">
+                            Kommande
+                        </button>
+
+                    </div>
+
                 </div>
 
             </div>
 
-            <div class="match-day">
+            <!-- MATCH LIST -->
 
-                <h3>Tidigare matcher</h3>
+            <div class="matches-list">
 
-                <div class="match-card">
-                    <span>Mexiko - Portugal</span>
-                    <strong>0 - 3</strong>
-                </div>
+                <div class="matches-list" id="matches-list"></div>
 
             </div>
 
