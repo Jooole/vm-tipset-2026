@@ -129,30 +129,25 @@
 
             <h2>Min tippning</h2>
 
+            <div class="info-box">
+                <div class="info-icon">i</div>
+
+                <div class="info-content">
+                    <h4>Så fungerar tippningen</h4>
+                    <p>
+                        Tippa resultat i gruppspelsmatcherna och slutspelet, och välj vem du tror vinner skytteligan
+                        och hur många mål den spelaren gör.
+                        Din tippning sparas automatiskt allteftersom du fyller i formuläret.
+                        Tippningen blir låst 1h innan första VM-matchen börjar.
+                    </p>
+                </div>
+            </div>
+
             <div class="betting-section">
 
                 <h3>Gruppspelsmatcher</h3>
 
                 <div id="match-list">
-
-                    <div class="match-card">
-                        <span>Argentina - Spanien</span>
-
-                        <div class="score-inputs">
-                            <input type="number" min="0" placeholder="0">
-                            <input type="number" min="0" placeholder="0">
-                        </div>
-                    </div>
-
-                    <div class="match-card">
-                        <span>Brasilien - Tyskland</span>
-
-                        <div class="score-inputs">
-                            <input type="number" min="0" placeholder="0">
-                            <input type="number" min="0" placeholder="0">
-                        </div>
-                    </div>
-
                 </div>
 
             </div>
@@ -178,16 +173,22 @@
             <div class="top-scorer-section">
                 <h3>Skytteligan</h3>
 
-                <h4>Skytteligavinnare</h4>
-                <div class="autocomplete">
-
-                    <input type="text" id="topscorer-input" placeholder="Välj spelare" autocomplete="off">
-
-                    <div id="topscorer-results"></div>
+                <div id="top-scorer-inputs">
+                    <div class="top-scorer-input">
+                        <h4>Skytteligavinnare</h4>
+                        <div class="autocomplete">
+                            <input type="text" id="topscorer-input" placeholder="Välj spelare" autocomplete="off">
+                            <div id="topscorer-results"></div>
+                        </div>
+                    </div>
+                    <div class="top-scorer-input">
+                        <h4>Antal mål</h4>
+                        <div class="input">
+                            <input type="number" min="0" placeholder="Mål" id="goals-input">
+                        </div>
+                    </div>
 
                 </div>
-                <h3>Antal mål</h3>
-                <input type="number" min="0" placeholder="Mål">
             </div>
 
         </section>
@@ -337,6 +338,7 @@
     <script src="js/api.js"></script>
     <script src="js/flags.js"></script>
     <script src="js/matches.js"></script>
+    <script src="js/players.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/betting.js"></script>
     <script src="js/main.js"></script>

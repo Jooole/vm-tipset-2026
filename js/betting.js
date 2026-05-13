@@ -40,6 +40,7 @@ function renderBettingMatches(matches) {
 
         <div class="score-inputs">
           <input type="number" min="0" placeholder="0">
+          <div class="score-divider">-</div>
           <input type="number" min="0" placeholder="0">
         </div>
 
@@ -72,11 +73,9 @@ function renderPlayoffRound({
 }) {
 
   const container = document.getElementById(containerId);
-
   if (!container) return;
 
-  // alla val för just DENNA runda
-  const selections = playoffSelections[containerId];
+  const selections = playoffSelections[containerId] || {};
 
   let html = `<h4>${title}</h4>`;
 
@@ -84,27 +83,23 @@ function renderPlayoffRound({
 
     const selectedTeam = selections[i] || "";
 
-    // filtrera bort redan valda lag i samma runda
     const availableTeams = allTeams.filter(team => {
       return (
-        !Object.values(selections).includes(team)
-        || team === selectedTeam
+        !Object.values(selections).includes(team) ||
+        team === selectedTeam
       );
     });
 
     html += `
       <select
+        class="playoff-select"
         data-round="${containerId}"
         data-slot="${i}"
       >
-
         <option value="">Välj lag</option>
 
         ${availableTeams.map(team => `
-          <option
-            value="${team}"
-            ${team === selectedTeam ? "selected" : ""}
-          >
+          <option value="${team}" ${team === selectedTeam ? "selected" : ""}>
             ${team}
           </option>
         `).join("")}
