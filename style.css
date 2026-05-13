@@ -149,6 +149,15 @@ main {
     margin-bottom: 2rem;
 }
 
+#round-of-32,
+#round-of-16,
+#quarterfinals,
+#semifinals,
+#final,
+#winner {
+    margin-bottom: 1rem;
+}
+
 .betting-section {
     margin-top: 1rem;
 }

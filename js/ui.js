@@ -1,3 +1,13 @@
+/**
+ * =========================
+ * UI MODULE
+ * =========================
+ * Ansvar:
+ * - Navigation mellan sidor
+ * - Countdown timer
+ * - All generell UI-logik som inte är matcher
+ */
+
 function initNavigation() {
   const navButtons = document.querySelectorAll(".nav-btn");
   const pages = document.querySelectorAll(".page");

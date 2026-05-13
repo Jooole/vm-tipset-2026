@@ -1,3 +1,13 @@
+/**
+ * =========================
+ * FLAGS MODULE
+ * =========================
+ * Ansvar:
+ * - Konverterar landskoder (ISO3 / FIFA codes)
+ *   till flaggbilder från flagcdn.com
+ * - Ingen UI-logik
+ */
+
 function getFlag(code) {
   if (!code) return "";
 

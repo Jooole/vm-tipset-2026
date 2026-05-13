@@ -1,3 +1,14 @@
+/**
+ * =========================
+ * MATCHES MODULE
+ * =========================
+ * Ansvar:
+ * - Håller appens match-state (matches array)
+ * - Filtrering (grupp / datum)
+ * - Rendering av match-listor
+ * - Logik för matchvisning i UI
+ */
+
 let matches = [];
 let todaysMatchesOnly = false;
 let activeGroup = "Alla grupper";
@@ -98,4 +109,16 @@ function initMatchFilters() {
     activeGroup = groupSelect.value;
     filterMatches();
   });
+}
+
+//Bygger lista av alla lag
+function getAllTeamsFromMatches(matches) {
+  const teams = new Set();
+
+  matches.forEach(m => {
+    if (m.homeTeam) teams.add(m.homeTeam);
+    if (m.awayTeam) teams.add(m.awayTeam);
+  });
+
+  return Array.from(teams).sort();
 }
