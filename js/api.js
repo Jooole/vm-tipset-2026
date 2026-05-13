@@ -19,10 +19,10 @@ const MOCK_MATCHES = [
     away_team: "South Africa",
     home_team_code: "MEX",
     away_team_code: "RSA",
-    home_score: null,
-    away_score: null,
+    home_score: 1,
+    away_score: 2,
     stadium: "Estadio Azteca",
-    status: "scheduled"
+    status: "live",
   },
   {
     kickoff_utc: "2026-06-12T19:00:00.000Z",
