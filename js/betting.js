@@ -92,7 +92,7 @@ function renderPlayoffRound({
 
     html += `
       <select
-        class="playoff-select"
+        class="playoff-select input-base"
         data-round="${containerId}"
         data-slot="${i}"
       >

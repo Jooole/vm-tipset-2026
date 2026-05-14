@@ -39,7 +39,7 @@
                 </p>
 
                 <button id="cta-btn">
-                    Lämna in din tippning
+                    Börja tippa!
                 </button>
             </div>
 
@@ -138,8 +138,8 @@
                     <p>
                         Tippa resultat i gruppspelsmatcherna och slutspelet, och välj vem du tror vinner skytteligan
                         och hur många mål den spelaren gör.
-                        Din tippning sparas automatiskt allteftersom du fyller i formuläret.
-                        Tippningen blir låst 1h innan första VM-matchen börjar.
+                        Din tips sparas automatiskt allteftersom du fyller i formuläret och blir låst 1h innan första
+                        VM-matchen börjar.
                     </p>
                 </div>
             </div>
@@ -178,14 +178,15 @@
                     <div class="top-scorer-input">
                         <h4>Skytteligavinnare</h4>
                         <div class="autocomplete">
-                            <input type="text" id="topscorer-input" placeholder="Välj spelare" autocomplete="off">
+                            <input type="text" class="input-base" id="topscorer-input" placeholder="Välj spelare"
+                                autocomplete="off">
                             <div id="topscorer-results"></div>
                         </div>
                     </div>
                     <div class="top-scorer-input">
                         <h4>Antal mål</h4>
                         <div class="input">
-                            <input type="number" min="0" placeholder="Mål" id="goals-input">
+                            <input type="number" class="input-base" min="0" placeholder="Mål" id="goals-input">
                         </div>
                     </div>
 
@@ -213,7 +214,7 @@
 
                     <div class="filter-group">
 
-                        <select id="group-select" class="group-select">
+                        <select class="group-select input-base">
 
                             <option value="Alla grupper">
                                 Alla grupper
@@ -279,12 +280,9 @@
             </div>
 
             <!-- MATCH LIST -->
+            <div class="matches-list" id="matches-list"></div>
 
-            <div class="matches-list">
 
-                <div class="matches-list" id="matches-list"></div>
-
-            </div>
 
         </section>
 
@@ -297,10 +295,10 @@
 
                 <thead>
                     <tr>
-                        <th>Placering</th>
+                        <th class="rank-column">Placering</th>
                         <th>Tippare</th>
-                        <th>Poäng</th>
-                        <th>Trend</th>
+                        <th class="points-column">Poäng</th>
+                        <th class="trend-column">Trend</th>
                     </tr>
                 </thead>
 
