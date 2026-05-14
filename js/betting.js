@@ -1,58 +1,26 @@
 /**
  * =========================
- * BETTING MODULE
+ * BETTING MODULE (FIXED)
  * =========================
- * Ansvar:
- * - Renderar sidan "Min tippning"
- * - Visar alla gruppspelsmatcher från API-data
- * - Hanterar inputs för hemmalag/bortalag (score-tips)
- *
- * Kommande funktioner (framtid):
- * - Spara tippningar (localStorage)
- * - Koppla tippning till specifika matcher (match-id)
- * - Återläsa sparade tippningar vid sidladdning
- *
- * Viktigt:
- * - Ingen API-logik här
- * - Ingen navigation eller UI för andra sidor
- * - Använder global "matches"-array från matches.js
  */
 
-function renderBettingMatches(matches) {
-  const container = document.getElementById("match-list");
-  if (!container) return;
+import { saveTips } from "./firebase.js";
 
-  // bara gruppspel
-  const groupMatches = matches.filter(m =>
-    m.group.startsWith("Grupp")
-  );
+/**
+ * =========================
+ * STATE
+ * =========================
+ */
 
-  container.innerHTML = groupMatches.map(match => {
-    const homeTeam = match.homeTeam || "TBD";
-    const awayTeam = match.awayTeam || "TBD";
-
-    return `
-      <div class="match-card">
-
-        <span>
-          ${homeTeam} - ${awayTeam}
-        </span>
-
-        <div class="score-inputs">
-          <input type="number" min="0" placeholder="0">
-          <div class="score-divider">-</div>
-          <input type="number" min="0" placeholder="0">
-        </div>
-
-      </div>
-    `;
-  }).join("");
-}
-
+let tipsState = {
+  matches: {},
+  playoffs: {},
+  topScorer: "",
+  goals: 0
+};
 
 let allTeams = [];
 
-// Sparar valda lag per slutspelsrunda
 const playoffSelections = {
   "round-of-32": {},
   "round-of-16": {},
@@ -62,15 +30,107 @@ const playoffSelections = {
   "winner": {}
 };
 
+let saveTimeout;
+
+/**
+ * =========================
+ * AUTO SAVE (SAFE CLONE)
+ * =========================
+ */
+
+function autoSave() {
+  clearTimeout(saveTimeout);
+
+  saveTimeout = setTimeout(() => {
+    if (!window.currentUser) return;
+
+    const payload = structuredClone
+      ? structuredClone(tipsState)
+      : JSON.parse(JSON.stringify(tipsState));
+
+    saveTips(window.currentUser.uid, payload);
+  }, 500);
+}
+
+/**
+ * =========================
+ * MATCH RENDER
+ * =========================
+ */
+
+ function renderBettingMatches(matches) {
+  const container = document.getElementById("match-list");
+  if (!container) return;
+
+  const groupMatches = matches.filter(m =>
+    m.group?.startsWith("Grupp")
+  );
+
+  container.innerHTML = groupMatches.map((match, index) => {
+
+    const homeTeam = match.homeTeam || "TBD";
+    const awayTeam = match.awayTeam || "TBD";
+
+    const matchId = match.id || `${homeTeam}-${awayTeam}-${index}`;
+
+    return `
+      <div class="match-card" data-id="${matchId}">
+
+        <span>${homeTeam} - ${awayTeam}</span>
+
+        <div class="score-inputs">
+          <input type="number" min="0" class="home-score">
+          <div class="score-divider">-</div>
+          <input type="number" min="0" class="away-score">
+        </div>
+
+      </div>
+    `;
+  }).join("");
+
+  bindMatchInputs(); // 👈 IMPORTANT: bind efter render
+}
+
+/**
+ * =========================
+ * MATCH INPUTS (SAFE BIND)
+ * =========================
+ */
+
+function bindMatchInputs() {
+  document.querySelectorAll(".match-card").forEach(card => {
+
+    const inputs = card.querySelectorAll("input");
+    if (!inputs.length) return;
+
+    inputs.forEach(input => {
+      input.oninput = () => {
+
+        const matchId = card.dataset.id;
+        if (!matchId) return;
+
+        tipsState.matches[matchId] = {
+          home: inputs[0].value,
+          away: inputs[1].value
+        };
+
+        autoSave();
+      };
+    });
+  });
+}
+
+/**
+ * =========================
+ * PLAYOFF
+ * =========================
+ */
+
 function setAllTeams(teams) {
   allTeams = teams;
 }
 
-function renderPlayoffRound({
-  containerId,
-  title,
-  slots
-}) {
+function renderPlayoffRound({ containerId, title, slots }) {
 
   const container = document.getElementById(containerId);
   if (!container) return;
@@ -83,19 +143,15 @@ function renderPlayoffRound({
 
     const selectedTeam = selections[i] || "";
 
-    const availableTeams = allTeams.filter(team => {
-      return (
-        !Object.values(selections).includes(team) ||
-        team === selectedTeam
-      );
-    });
+    const availableTeams = allTeams.filter(team =>
+      !Object.values(selections).includes(team) ||
+      team === selectedTeam
+    );
 
     html += `
-      <select
-        class="playoff-select input-base"
+      <select class="playoff-select input-base"
         data-round="${containerId}"
-        data-slot="${i}"
-      >
+        data-slot="${i}">
         <option value="">Välj lag</option>
 
         ${availableTeams.map(team => `
@@ -109,162 +165,146 @@ function renderPlayoffRound({
   }
 
   container.innerHTML = html;
+}
+
+/**
+ * =========================
+ * PLAYOFF LISTENERS (NO DUPLICATES)
+ * =========================
+ */
+
+let listenersBound = false;
+
+function attachPlayoffListeners() {
+  if (listenersBound) return;
+  listenersBound = true;
+
+  document.addEventListener("change", (e) => {
+
+    if (!e.target.matches(".playoff-select")) return;
+
+    const round = e.target.dataset.round;
+    const slot = e.target.dataset.slot;
+    const value = e.target.value;
+
+    playoffSelections[round][slot] = value;
+
+    tipsState.playoffs = structuredClone
+      ? structuredClone(playoffSelections)
+      : JSON.parse(JSON.stringify(playoffSelections));
+
+    autoSave();
+
+    renderPlayoffRoundById(round);
+  });
+}
+
+/**
+ * =========================
+ * RERENDER ONE ROUND
+ * =========================
+ */
+
+function renderPlayoffRoundById(round) {
+
+  const config = {
+    "round-of-32": { title: "16-delsfinal", slots: 32 },
+    "round-of-16": { title: "8-delsfinal", slots: 16 },
+    "quarterfinals": { title: "Kvartsfinal", slots: 8 },
+    "semifinals": { title: "Semifinal", slots: 4 },
+    "final": { title: "Final", slots: 2 },
+    "winner": { title: "VM-vinnare", slots: 1 }
+  }[round];
+
+  if (!config) return;
+
+  renderPlayoffRound({
+    containerId: round,
+    title: config.title,
+    slots: config.slots
+  });
+}
+
+/**
+ * =========================
+ * INIT PLAYOFFS
+ * =========================
+ */
+
+function renderAllPlayoffRounds() {
+
+  renderPlayoffRoundById("round-of-32");
+  renderPlayoffRoundById("round-of-16");
+  renderPlayoffRoundById("quarterfinals");
+  renderPlayoffRoundById("semifinals");
+  renderPlayoffRoundById("final");
+  renderPlayoffRoundById("winner");
 
   attachPlayoffListeners();
 }
 
-function attachPlayoffListeners() {
+/**
+ * =========================
+ * SKYTTELIGA AUTOCOMPLETE
+ * =========================
+ */
 
-  document
-    .querySelectorAll(".playoff-section select")
-    .forEach(select => {
+function initTopscorerAutocomplete(players) {
 
-      select.addEventListener("change", (e) => {
-
-        const round = e.target.dataset.round;
-        const slot = e.target.dataset.slot;
-        const value = e.target.value;
-
-        // spara valet
-        playoffSelections[round][slot] = value;
-
-        // rendera om JUST DENNA runda
-        switch (round) {
-
-          case "round-of-32":
-            renderPlayoffRound({
-              containerId: "round-of-32",
-              title: "16-delsfinal",
-              slots: 32
-            });
-            break;
-
-          case "round-of-16":
-            renderPlayoffRound({
-              containerId: "round-of-16",
-              title: "8-delsfinal",
-              slots: 16
-            });
-            break;
-
-          case "quarterfinals":
-            renderPlayoffRound({
-              containerId: "quarterfinals",
-              title: "Kvartsfinal",
-              slots: 8
-            });
-            break;
-
-          case "semifinals":
-            renderPlayoffRound({
-              containerId: "semifinals",
-              title: "Semifinal",
-              slots: 4
-            });
-            break;
-
-          case "final":
-            renderPlayoffRound({
-              containerId: "final",
-              title: "Final",
-              slots: 2
-            });
-            break;
-
-          case "winner":
-            renderPlayoffRound({
-              containerId: "winner",
-              title: "VM-vinnare",
-              slots: 1
-            });
-            break;
-        }
-
-      });
-
-    });
-
-}
-
-function renderAllPlayoffRounds() {
-
-  renderPlayoffRound({
-    containerId: "round-of-32",
-    title: "16-delsfinal",
-    slots: 32
-  });
-
-  renderPlayoffRound({
-    containerId: "round-of-16",
-    title: "8-delsfinal",
-    slots: 16
-  });
-
-  renderPlayoffRound({
-    containerId: "quarterfinals",
-    title: "Kvartsfinal",
-    slots: 8
-  });
-
-  renderPlayoffRound({
-    containerId: "semifinals",
-    title: "Semifinal",
-    slots: 4
-  });
-
-  renderPlayoffRound({
-    containerId: "final",
-    title: "Final",
-    slots: 2
-  });
-
-  renderPlayoffRound({
-    containerId: "winner",
-    title: "VM-vinnare",
-    slots: 1
-  });
-
-}
-
-
-function initTopscorerAutocomplete() {
-
-  const input =
-    document.getElementById("topscorer-input");
-
-  const results =
-    document.getElementById("topscorer-results");
+  const input = document.getElementById("topscorer-input");
+  const results = document.getElementById("topscorer-results");
 
   if (!input || !results) return;
 
-  input.addEventListener("input", () => {
+  input.oninput = () => {
 
-    const value =
-      input.value.toLowerCase().trim();
+    const value = input.value.toLowerCase().trim();
 
     results.innerHTML = "";
-
     if (!value) return;
 
-    const filteredPlayers = players.filter(player =>
-      player.toLowerCase().includes(value)
-    );
+    players
+      .filter(p => p.toLowerCase().includes(value))
+      .forEach(player => {
 
-    filteredPlayers.forEach(player => {
+        const div = document.createElement("div");
+        div.textContent = player;
 
-      const option = document.createElement("div");
+        div.onclick = () => {
+          input.value = player;
+          results.innerHTML = "";
 
-      option.textContent = player;
+          tipsState.topScorer = player;
+          autoSave();
+        };
 
-      option.addEventListener("click", () => {
-        input.value = player;
-        results.innerHTML = "";
+        results.appendChild(div);
       });
-
-      results.appendChild(option);
-
-    });
-
-  });
-
+  };
 }
+
+/**
+ * =========================
+ * GOALS INPUT
+ * =========================
+ */
+
+document.addEventListener("input", (e) => {
+  if (e.target.id !== "goals-input") return;
+
+  tipsState.goals = Number(e.target.value);
+  autoSave();
+});
+
+/**
+ * =========================
+ * EXPORTS
+ * =========================
+ */
+
+export {
+  renderBettingMatches,
+  renderAllPlayoffRounds,
+  setAllTeams,
+  initTopscorerAutocomplete
+};

@@ -8,7 +8,7 @@
  * - Ingen UI-logik här
  */
 
-const players = [
+export const players = [
   // =====================
   // ARGENTINA
   // =====================

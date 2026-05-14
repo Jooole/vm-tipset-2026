@@ -8,7 +8,7 @@
  * - Ingen UI-logik
  */
 
-function getFlag(code) {
+export function getFlag(code) {
   if (!code) return "";
 
   const c = code.trim().toUpperCase();

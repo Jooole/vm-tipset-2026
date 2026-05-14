@@ -173,7 +173,7 @@ const API_KEY = "wc26_JDF2xbAz8PGoYi7PYMRFfS";
 
 const API_URL = "https://api.wc2026api.com/matches";
 
-async function fetchMatches() {
+export async function fetchMatches() {
   if (USE_MOCK) {
     console.log("USING MOCK DATA");
     return MOCK_MATCHES;

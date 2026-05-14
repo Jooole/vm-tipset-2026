@@ -13,7 +13,8 @@ let matches = [];
 let todaysMatchesOnly = false;
 let activeGroup = "Alla grupper";
 
-function renderMatches(data) {
+export function renderMatches(data) {
+    matches = data;
   const matchesList = document.getElementById("matches-list");
   if (!matchesList) return;
 
@@ -49,8 +50,10 @@ function renderMatches(data) {
 
           <div class="team">
             <span class="team-name">${homeTeam}</span>
-            <img class="flag" src="${match.homeFlag}" />
-          </div>
+            ${match.homeFlag
+             ? `<img class="flag" src="${match.homeFlag}" />`
+                : ""
+            } </div>
 
           <div class="score-box ${homeEmpty ? "empty" : ""}">
             ${match.homeScore ?? ""}
@@ -65,7 +68,10 @@ function renderMatches(data) {
           </div>
 
           <div class="team">
-            <img class="flag" src="${match.awayFlag}" />
+            ${match.awayFlag
+            ? `<img class="flag" src="${match.awayFlag}" />`
+            : ""
+            }
             <span class="team-name">${awayTeam}</span>
           </div>
 
@@ -96,7 +102,7 @@ function filterMatches() {
   renderMatches(filtered);
 }
 
-function initMatchFilters() {
+export function initMatchFilters() {
   const todayToggle = document.getElementById("today-toggle");
   const groupSelect = document.getElementById("group-select");
 

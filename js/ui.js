@@ -8,7 +8,7 @@
  * - All generell UI-logik som inte är matcher
  */
 
-function initNavigation() {
+export function initNavigation() {
   const navButtons = document.querySelectorAll(".nav-btn");
   const pages = document.querySelectorAll(".page");
   const ctaButton = document.getElementById("cta-btn");
@@ -34,7 +34,7 @@ function initNavigation() {
   });
 }
 
-function initCountdown() {
+export function initCountdown() {
   const countdownElement = document.getElementById("countdown");
   const worldCupStart = new Date("2026-06-11T20:00:00");
 

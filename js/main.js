@@ -1,59 +1,55 @@
 /**
  * =========================
- * MAIN ENTRY POINT
+ * MAIN ENTRY POINT (FIXED)
  * =========================
- *
- * Ansvar:
- * - Startar hela applikationen
- * - Hämtar matcher från API eller cache
- * - Renderar UI (matcher + betting + playoff)
- * - Hanterar live polling vid behov
- *
- * Detta är appens "controller"
  */
 
 console.log("App started");
 
 // =========================
+// IMPORTS (CLEAN)
+// =========================
+import { fetchMatches } from "./api.js";
+import { initNavigation } from "./ui.js";
+import { initCountdown } from "./ui.js";
+import { initAuthListener } from "./firebase.js";
+import { getFlag } from "./flags.js";
+import {
+  renderBettingMatches,
+  renderAllPlayoffRounds,
+  setAllTeams,
+  initTopscorerAutocomplete
+} from "./betting.js";
+
+// NOTE: players måste komma från players.js
+import { players } from "./players.js";
+
+import { initMatchFilters, renderMatches } from "./matches.js";
+
+// =========================
 // GLOBAL STATE
 // =========================
 
-// skyddar mot dubbel init
 let hasLoadedMatches = false;
-
-// interval för live updates
 let liveUpdateInterval = null;
-
-/**
- * Kollar om någon match är live
- */
-function hasLiveMatches(matchList) {
-  return matchList.some(m => m.status === "live");
-}
+let matches = []; // VIKTIGT: saknades i din kod
 
 // =========================
-// MAIN INIT FUNCTION
+// INIT MATCHES
 // =========================
 
 async function initMatches() {
-  if (hasLoadedMatches) {
-    console.warn("initMatches blocked (already executed)");
-    return;
-  }
+  if (hasLoadedMatches) return;
 
   hasLoadedMatches = true;
 
-  // cache config
   const CACHE_KEY = "matches_cache";
   const CACHE_TIME_KEY = "matches_cache_time";
-  const CACHE_MAX_AGE = 10 * 60 * 1000; // 10 min
+  const CACHE_MAX_AGE = 10 * 60 * 1000;
 
   try {
     console.log("Loading matches...");
 
-    // =========================
-    // 1. TRY CACHE FIRST
-    // =========================
     const cachedData = localStorage.getItem(CACHE_KEY);
     const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
 
@@ -61,84 +57,47 @@ async function initMatches() {
     const cacheAge = cachedTime ? now - Number(cachedTime) : null;
 
     if (cachedData && cacheAge !== null && cacheAge < CACHE_MAX_AGE) {
-      console.log("Using CACHE (age min):", Math.round(cacheAge / 60000));
-
       matches = JSON.parse(cachedData);
-
       renderAllUI(matches);
-
-      return; // stop → ingen API call
+      return;
     }
 
-    // =========================
-    // 2. FETCH API
-    // =========================
     console.log("Fetching from API...");
 
     const apiMatches = await fetchMatches();
 
-    if (!Array.isArray(apiMatches)) {
-      console.error("API error:", apiMatches);
-      return;
-    }
-
-    // =========================
-    // 3. MAP API DATA
-    // =========================
     matches = apiMatches.map(match => ({
-      date: match.kickoff_utc?.split("T")[0] ?? "",
+  date: match.kickoff_utc?.split("T")[0] ?? "",
+  time: new Date(match.kickoff_utc).toLocaleTimeString("sv-SE", {
+    hour: "2-digit",
+    minute: "2-digit"
+  }),
 
-      time: new Date(match.kickoff_utc).toLocaleTimeString("sv-SE", {
-        hour: "2-digit",
-        minute: "2-digit"
-      }),
+  group: match.group_name ? `Grupp ${match.group_name}` : "Slutspel",
 
-      group: match.group_name
-        ? `Grupp ${match.group_name}`
-        : "Slutspel",
+  homeTeam: match.home_team,
+  awayTeam: match.away_team,
 
-      homeTeam: match.home_team,
-      awayTeam: match.away_team,
+  homeFlag: getFlag(match.home_team_code),
+  awayFlag: getFlag(match.away_team_code),
 
-      homeFlag: getFlag(match.home_team_code),
-      awayFlag: getFlag(match.away_team_code),
+  homeScore: match.home_score ?? null,
+  awayScore: match.away_score ?? null,
 
-      homeScore: match.home_score ?? null,
-      awayScore: match.away_score ?? null,
+  stadium: match.stadium ?? "",
 
-      stadium: match.stadium ?? "",
+  status:
+    match.status === "completed"
+      ? "finished"
+      : match.status === "live"
+      ? "live"
+      : "upcoming"
+}));
 
-      status:
-        match.status === "completed"
-          ? "finished"
-          : match.status === "live"
-          ? "live"
-          : "upcoming"
-    }));
-
-    // =========================
-    // 4. SAVE CACHE
-    // =========================
     localStorage.setItem(CACHE_KEY, JSON.stringify(matches));
     localStorage.setItem(CACHE_TIME_KEY, Date.now());
 
-    // =========================
-    // 5. RENDER UI
-    // =========================
     renderAllUI(matches);
-
-    console.log("initMatches complete:", {
-      matches: matches.length
-    });
-
-    // =========================
-    // 6. START LIVE POLLING IF NEEDED
-    // =========================
-    if (hasLiveMatches(matches)) {
-      startLivePolling();
-    } else {
-      console.log("No live matches → polling disabled");
-    }
 
   } catch (err) {
     console.error("initMatches failed:", err);
@@ -146,96 +105,49 @@ async function initMatches() {
 }
 
 // =========================
-// LIVE POLLING
+// RENDER UI
 // =========================
 
-function startLivePolling() {
-  if (liveUpdateInterval) return;
+function getAllTeamsFromMatches(matches) {
+  const teams = new Set();
 
-  console.log("Live polling started (10 min interval)");
+  matches.forEach(m => {
+    if (m.homeTeam) teams.add(m.homeTeam);
+    if (m.awayTeam) teams.add(m.awayTeam);
+  });
 
-  liveUpdateInterval = setInterval(async () => {
-    try {
-      console.log("Live update fetch...");
-
-      const apiMatches = await fetchMatches();
-
-      if (!Array.isArray(apiMatches)) return;
-
-      matches = apiMatches.map(match => ({
-        date: match.kickoff_utc?.split("T")[0] ?? "",
-
-        time: new Date(match.kickoff_utc).toLocaleTimeString("sv-SE", {
-          hour: "2-digit",
-          minute: "2-digit"
-        }),
-
-        group: match.group_name
-          ? `Grupp ${match.group_name}`
-          : "Slutspel",
-
-        homeTeam: match.home_team,
-        awayTeam: match.away_team,
-
-        homeFlag: getFlag(match.home_team_code),
-        awayFlag: getFlag(match.away_team_code),
-
-        homeScore: match.home_score ?? null,
-        awayScore: match.away_score ?? null,
-
-        stadium: match.stadium ?? "",
-
-        status:
-          match.status === "completed"
-            ? "finished"
-            : match.status === "live"
-            ? "live"
-            : "upcoming"
-      }));
-
-      // update cache
-      localStorage.setItem("matches_cache", JSON.stringify(matches));
-      localStorage.setItem("matches_cache_time", Date.now());
-
-      // update UI
-      renderAllUI(matches);
-
-      console.log("Live update complete");
-
-    } catch (err) {
-      console.error("Live polling error:", err);
-    }
-  }, 10 * 60 * 1000);
+  return Array.from(teams).sort();
 }
-
-// =========================
-// UI HELPER (EN enda render-funktion)
-// =========================
 
 function renderAllUI(matches) {
-  renderMatches(matches);
 
-  if (typeof renderBettingMatches === "function") {
-    renderBettingMatches(matches);
-  }
+    renderMatches(matches);
 
-  const teams = getAllTeamsFromMatches(matches);
+  renderBettingMatches(matches);
 
-  if (typeof setAllTeams === "function") {
-    setAllTeams(teams);
-  }
+  setAllTeams(getAllTeamsFromMatches(matches));
 
- if (typeof renderAllPlayoffRounds === "function") {
   renderAllPlayoffRounds();
-}
+
+  initTopscorerAutocomplete(players);
 }
 
 // =========================
-// BOOT APP
+// BOOT
 // =========================
 
-initMatches();
-initMatchFilters();
-initNavigation();
-initCountdown();
-initTopscorerAutocomplete();
+initAuthListener((user) => {
+
+  console.log("Auth state:", user);
+
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  initMatches();
+  initMatchFilters();
+  initNavigation();
+  initCountdown();
+
+});
