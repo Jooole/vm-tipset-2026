@@ -191,7 +191,7 @@ export function calculateUserPoints({
  * ACTUAL RESULTS (HARD CODED FOR NOW)
  * =========================
  */
-const actualResults = {
+export const actualResults = {
   roundOf32: ["Brazil", "France"],
   roundOf16: ["Brazil"],
   quarterfinals: ["Brazil"],

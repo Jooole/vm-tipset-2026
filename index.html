@@ -178,15 +178,16 @@
                     <div class="top-scorer-input">
                         <h4>Skytteligavinnare</h4>
                         <div class="autocomplete">
-                            <input type="text" class="input-base" id="topscorer-input" placeholder="Välj spelare"
-                                autocomplete="off">
+                            <input type="text" class="input-base betting-input" id="topscorer-input"
+                                placeholder="Välj spelare" autocomplete="off">
                             <div id="topscorer-results"></div>
                         </div>
                     </div>
                     <div class="top-scorer-input">
                         <h4>Antal mål</h4>
                         <div class="input">
-                            <input type="number" class="input-base" min="0" placeholder="Mål" id="goals-input">
+                            <input type="number" class="input-base betting-input" min="0" placeholder="Mål"
+                                id="goals-input">
                         </div>
                     </div>
 
@@ -291,18 +292,18 @@
 
             <h2>Resultat</h2>
 
-            <table>
+            <table class="leaderboard-table">
 
                 <thead>
                     <tr>
-                        <th class="rank-column">Pos.</th>
+                        <th class="rank-column">#</th>
                         <th>Tippare</th>
                         <th class="points-column">Poäng</th>
                         <th class="trend-column">Trend</th>
                     </tr>
                 </thead>
 
-                <tbody>
+                <tbody id="leaderboard-body">
 
                     <tr>
                         <td>1</td>

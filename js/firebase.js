@@ -19,6 +19,8 @@ import {
   doc,
   setDoc,
   getDoc,
+  getDocs,
+  collection,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -37,7 +39,7 @@ const firebaseConfig = {
 
 /**
  * =========================
- * INIT
+ * INIT (MÅSTE KOMMA FÖRE DB-ANVÄNDNING)
  * =========================
  */
 
@@ -45,6 +47,31 @@ const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+
+/**
+ * =========================
+ * TIPPS LOCK
+ * =========================
+ */
+
+export const LOCK_TIME = new Date("2020-06-11T20:00:00Z");
+
+export function isTipsLocked() {
+  return Date.now() >= LOCK_TIME.getTime();
+}
+
+/**
+ * =========================
+ * AUTH STATE
+ * =========================
+ */
+
+export function initAuthListener(callback) {
+  onAuthStateChanged(auth, (user) => {
+    window.currentUser = user;
+    if (callback) callback(user);
+  });
+}
 
 /**
  * =========================
@@ -60,29 +87,39 @@ export async function login(email, password) {
   return await signInWithEmailAndPassword(auth, email, password);
 }
 
-/**
- * =========================
- * AUTH STATE
- * =========================
- */
-
-export function initAuthListener(callback) {
-  onAuthStateChanged(auth, (user) => {
-    window.currentUser = user;
-
-    if (callback) callback(user);
-  });
+export async function logout() {
+  return await signOut(auth);
 }
 
 /**
  * =========================
- * FIRESTORE: SAVE TIPS
+ * FIRESTORE: USERS
+ * =========================
+ */
+
+export async function loadAllUsers() {
+  const snapshot = await getDocs(collection(db, "users"));
+
+  return snapshot.docs.map(doc => ({
+    userId: doc.id,
+    data: doc.data()
+  }));
+}
+
+/**
+ * =========================
+ * FIRESTORE: TIPS
  * =========================
  */
 
 export async function saveTips(userId, tipsData) {
   if (!userId) {
     console.error("saveTips: userId saknas");
+    return;
+  }
+
+  if (isTipsLocked()) {
+    console.warn("Tips är låsta – sparande nekas");
     return;
   }
 
@@ -98,12 +135,6 @@ export async function saveTips(userId, tipsData) {
   }
 }
 
-/**
- * =========================
- * FIRESTORE: LOAD TIPS
- * =========================
- */
-
 export async function loadTips(userId) {
   if (!userId) {
     console.error("loadTips: userId saknas");
@@ -114,25 +145,25 @@ export async function loadTips(userId) {
     const ref = doc(db, "tips", userId);
     const snap = await getDoc(ref);
 
-    if (snap.exists()) {
-      return snap.data().data;
-    }
-
-    return null;
+    return snap.exists() ? snap.data().data : null;
   } catch (error) {
     console.error("Kunde inte hämta tips:", error);
     return null;
   }
 }
 
-/**
- * =========================
- * LOG OUT
- * =========================
- */
+export async function loadAllTips() {
+  try {
+    const snapshot = await getDocs(collection(db, "tips"));
 
-export async function logout() {
-  await signOut(auth);
+    return snapshot.docs.map(doc => ({
+      userId: doc.id,
+      ...doc.data()
+    }));
+  } catch (error) {
+    console.error("Kunde inte hämta alla tips:", error);
+    return [];
+  }
 }
 
 /**

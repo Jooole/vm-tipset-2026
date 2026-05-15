@@ -95,9 +95,9 @@ function autoSave() {
         <span>${homeTeam} - ${awayTeam}</span>
 
         <div class="score-inputs">
-          <input type="number" min="0" class="home-score">
+          <input type="number" min="0" class="home-score betting-input">
           <div class="score-divider">-</div>
-          <input type="number" min="0" class="away-score">
+          <input type="number" min="0" class="away-score betting-input">
         </div>
 
       </div>
@@ -166,7 +166,7 @@ function renderPlayoffRound({ containerId, title, slots }) {
     );
 
     html += `
-      <select class="playoff-select input-base"
+      <select class="playoff-select input-base betting-input"
         data-round="${containerId}"
         data-slot="${i}">
         <option value="">Välj lag</option>
