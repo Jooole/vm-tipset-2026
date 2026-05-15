@@ -26,8 +26,7 @@ export function renderMatches(data) {
     const awayEmpty = match.awayScore == null;
 
     return `
-      <div class="match-item ${match.status === "live" ? "live-match" : ""}">
-
+        <div class="match-item ${match.status === "live" ? "live-match" : ""}" data-match-id="${match.id}">
         <div class="match-top">
           <div class="match-date">
             <span>📅</span>

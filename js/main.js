@@ -9,16 +9,19 @@ console.log("App started");
 // =========================
 // IMPORTS (CLEAN)
 // =========================
+import { loadTips } from "./firebase.js";
 import { fetchMatches } from "./api.js";
 import { initNavigation } from "./ui.js";
 import { initCountdown } from "./ui.js";
 import { initAuthListener } from "./firebase.js";
 import { getFlag } from "./flags.js";
+import { ensureStateStructure } from "./betting.js";
 import {
   renderBettingMatches,
   renderAllPlayoffRounds,
   setAllTeams,
-  initTopscorerAutocomplete
+  initTopscorerAutocomplete,
+  hydrateBettingUI
 } from "./betting.js";
 
 // NOTE: players måste komma från players.js
@@ -32,8 +35,7 @@ import { initMatchFilters, renderMatches } from "./matches.js";
 
 let hasLoadedMatches = false;
 let liveUpdateInterval = null;
-let matches = []; // VIKTIGT: saknades i din kod
-
+let matches = []; 
 // =========================
 // INIT MATCHES
 // =========================
@@ -121,33 +123,48 @@ function getAllTeamsFromMatches(matches) {
 
 function renderAllUI(matches) {
 
-    renderMatches(matches);
+  window.matches = matches; 
 
+  renderMatches(matches);
   renderBettingMatches(matches);
 
   setAllTeams(getAllTeamsFromMatches(matches));
-
   renderAllPlayoffRounds();
 
   initTopscorerAutocomplete(players);
+  hydrateBettingUI();
 }
 
 // =========================
 // BOOT
 // =========================
 
-initAuthListener((user) => {
-
-  console.log("Auth state:", user);
+initAuthListener(async (user) => {
 
   if (!user) {
     window.location.href = "login.html";
     return;
   }
 
+  console.log("Loading user tips...");
+
+    const savedTips = (await loadTips(user.uid)) || {};
+
+ensureStateStructure();
+
+
+window.userTips = {
+  matches: {},
+  playoffs: {},
+  topScorer: "",
+  goals: 0,
+  ...savedTips
+};
+
+  console.log("User tips state:", window.userTips);
+
   initMatches();
   initMatchFilters();
   initNavigation();
   initCountdown();
-
 });

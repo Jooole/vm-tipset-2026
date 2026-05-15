@@ -12,23 +12,39 @@ import { saveTips } from "./firebase.js";
  * =========================
  */
 
-let tipsState = {
+window.userTips = window.userTips || {
   matches: {},
   playoffs: {},
   topScorer: "",
   goals: 0
 };
 
-let allTeams = [];
+function updateState(path, value) {
+  const state = window.userTips;
 
-const playoffSelections = {
-  "round-of-32": {},
-  "round-of-16": {},
-  "quarterfinals": {},
-  "semifinals": {},
-  "final": {},
-  "winner": {}
-};
+  const keys = path.split(".");
+  let obj = state;
+
+  for (let i = 0; i < keys.length - 1; i++) {
+    if (!obj[keys[i]]) obj[keys[i]] = {};
+    obj = obj[keys[i]];
+  }
+
+  obj[keys[keys.length - 1]] = value;
+
+  autoSave();
+}
+
+function ensureStateStructure() {
+  window.userTips = window.userTips || {};
+
+  window.userTips.matches ||= {};
+  window.userTips.playoffs ||= {};
+  window.userTips.topScorer ||= "";
+  window.userTips.goals ||= 0;
+}
+
+let allTeams = [];
 
 let saveTimeout;
 
@@ -45,8 +61,8 @@ function autoSave() {
     if (!window.currentUser) return;
 
     const payload = structuredClone
-      ? structuredClone(tipsState)
-      : JSON.parse(JSON.stringify(tipsState));
+  ? structuredClone(window.userTips)
+  : JSON.parse(JSON.stringify(window.userTips));
 
     saveTips(window.currentUser.uid, payload);
   }, 500);
@@ -89,6 +105,7 @@ function autoSave() {
   }).join("");
 
   bindMatchInputs(); // 👈 IMPORTANT: bind efter render
+  fillInputsFromState(); //Fyll UI med sparad data
 }
 
 /**
@@ -109,12 +126,11 @@ function bindMatchInputs() {
         const matchId = card.dataset.id;
         if (!matchId) return;
 
-        tipsState.matches[matchId] = {
-          home: inputs[0].value,
-          away: inputs[1].value
-        };
+        updateState(`matches.${matchId}`, {
+  home: inputs[0].value,
+  away: inputs[1].value
+});
 
-        autoSave();
       };
     });
   });
@@ -135,7 +151,8 @@ function renderPlayoffRound({ containerId, title, slots }) {
   const container = document.getElementById(containerId);
   if (!container) return;
 
-  const selections = playoffSelections[containerId] || {};
+  const selections =
+  window.userTips?.playoffs?.[containerId] || {};
 
   let html = `<h4>${title}</h4>`;
 
@@ -187,13 +204,7 @@ function attachPlayoffListeners() {
     const slot = e.target.dataset.slot;
     const value = e.target.value;
 
-    playoffSelections[round][slot] = value;
-
-    tipsState.playoffs = structuredClone
-      ? structuredClone(playoffSelections)
-      : JSON.parse(JSON.stringify(playoffSelections));
-
-    autoSave();
+    updateState(`playoffs.${round}.${slot}`, value);
 
     renderPlayoffRoundById(round);
   });
@@ -274,8 +285,7 @@ function initTopscorerAutocomplete(players) {
           input.value = player;
           results.innerHTML = "";
 
-          tipsState.topScorer = player;
-          autoSave();
+          updateState("topScorer", player);
         };
 
         results.appendChild(div);
@@ -292,9 +302,66 @@ function initTopscorerAutocomplete(players) {
 document.addEventListener("input", (e) => {
   if (e.target.id !== "goals-input") return;
 
-  tipsState.goals = Number(e.target.value);
-  autoSave();
+  updateState("goals", Number(e.target.value));
 });
+
+/**
+ * =========================
+ * SAVE TIPS
+ * =========================
+ */
+
+function saveCurrentUserTips() {
+  const user = window.currentUser;
+  if (!user) return;
+
+  saveTips(user.uid, window.userTips);
+}
+
+/**
+ * =========================
+ * FILL BETTING INPUTS FROM STATE
+ * =========================
+ */
+function fillInputsFromState() {
+  const cards = document.querySelectorAll(".match-card");
+
+  cards.forEach(card => {
+    const matchId = card.dataset.id;
+    if (!matchId) return;
+
+    const data = window.userTips?.matches?.[matchId];
+    if (!data) return;
+
+    const inputs = card.querySelectorAll("input");
+    if (inputs.length < 2) return;
+
+    inputs[0].value = data.home ?? "";
+    inputs[1].value = data.away ?? "";
+  });
+}
+
+function hydrateBettingUI() {
+  renderBettingMatches(window.matches || []);
+  renderAllPlayoffRounds();
+  fillInputsFromState();
+  hydrateTopScorer();
+  hydrateGoals();
+}
+
+function hydrateTopScorer() {
+  const input = document.getElementById("topscorer-input");
+  if (!input) return;
+
+  input.value = window.userTips?.topScorer || "";
+}
+
+function hydrateGoals() {
+  const input = document.getElementById("goals-input");
+  if (!input) return;
+
+  input.value = window.userTips?.goals ?? "";
+}
 
 /**
  * =========================
@@ -306,5 +373,7 @@ export {
   renderBettingMatches,
   renderAllPlayoffRounds,
   setAllTeams,
-  initTopscorerAutocomplete
+  initTopscorerAutocomplete,
+  hydrateBettingUI,
+  ensureStateStructure
 };
