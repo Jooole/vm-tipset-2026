@@ -352,6 +352,69 @@ nav {
     font-size: 0.95rem;
 }
 
+.prizes {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.prizes-section {
+    padding: 1rem 0;
+}
+
+.emoji-trophy {
+    font-size: 28px;
+}
+
+.table-wrapper {
+    margin-top: 16px;
+
+    border: 2px solid #eee;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.prize-table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    font-family: Arial, sans-serif;
+    font-size: 1rem;
+
+    color: #222;
+}
+
+/* Header */
+.prize-table thead th {
+    text-align: left;
+    padding: 14px 16px;
+
+    font-weight: 700;
+    border-bottom: 2px solid #e5e5e5;
+}
+
+/* Rows */
+.prize-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #eee;
+}
+
+/* Hover (liten subtil effekt) */
+.prize-table tbody tr:hover {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+/* Medal icon */
+.medal {
+    font-size: 1.2rem;
+    margin-right: 8px;
+}
+
+.medal {
+    font-size: 1.2rem;
+    margin-right: 8px;
+}
 
 /* ========================================
    INFO BOX
@@ -799,8 +862,11 @@ table {
     width: 100%;
     border-collapse: collapse;
     background: white;
-    margin-top: 1rem;
     border-radius: 12px;
+}
+
+.leaderboard-table {
+    margin-top: 16px;
 }
 
 th,
