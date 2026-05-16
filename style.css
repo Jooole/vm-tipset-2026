@@ -937,7 +937,6 @@ td {
     }
 
     .match-bottom {
-        flex-direction: column;
         gap: 1rem;
     }
 
@@ -1043,9 +1042,21 @@ td {
         flex-direction: column;
     }
 
+    .match-status.upcoming,
+    .match-status.live {
+        font-size: 12px;
+    }
+
     .match-center {
-        flex-direction: column;
         gap: 1rem;
+    }
+
+    .score-box {
+        font-size: 1.5rem;
+    }
+
+    .team-name {
+        font-size: 1rem;
     }
 
     table {
