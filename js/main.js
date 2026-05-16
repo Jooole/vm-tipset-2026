@@ -334,21 +334,24 @@ if (DEV_MODE) {
 
   window.devSimulateResult = function (matchId, homeScore, awayScore) {
 
-    console.log("DEV: simulating result", matchId);
+    console.log("DEV: simulate match result", matchId);
 
-    const update = [{
-      id: matchId,
-      home_score: homeScore,
-      away_score: awayScore,
-      status: "completed"
-    }];
+    // ONLY update matches
+    window.matches = window.matches.map(match => {
+      if (match.id !== matchId) return match;
 
-    const merged = applyMatchUpdates(window.matches, update);
+      return {
+        ...match,
+        homeScore,
+        awayScore,
+        status: "finished"
+      };
+    });
 
-    window.matches = merged;
-
+    // ONLY render match list (NOT betting UI)
     renderMatches(window.matches);
-    renderBettingMatches(window.matches);
+
+    // leaderboard is fine
     renderLeaderboard();
   };
 
