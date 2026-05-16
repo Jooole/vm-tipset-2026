@@ -34,6 +34,20 @@ export function initNavigation() {
   });
 }
 
+//Öppna/stänga main menu på mobil
+const menuToggle = document.getElementById("menu-toggle");
+const mainNav = document.getElementById("main-nav");
+
+menuToggle?.addEventListener("click", () => {
+  mainNav.classList.toggle("open");
+});
+
+document.querySelectorAll(".nav-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    mainNav.classList.remove("open");
+  });
+});
+
 export function initCountdown() {
   const countdownElement = document.getElementById("countdown");
   const worldCupStart = new Date("2026-06-11T20:00:00");
@@ -44,14 +58,17 @@ export function initCountdown() {
     const now = new Date();
     const diff = worldCupStart - now;
 
-    const days = Math.floor(diff / 1000 / 60 / 60 / 24);
-    const hours = Math.floor((diff / 1000 / 60 / 60) % 24);
-    const minutes = Math.floor((diff / 1000 / 60) % 60);
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+    const seconds = Math.floor((diff / 1000) % 60);
 
     countdownElement.textContent =
-      `${days} dagar ${hours} timmar ${minutes} minuter`;
+      `${days} dagar ${hours} timmar ${minutes} minuter ${seconds} sekunder`;
   }
 
   updateCountdown();
-  setInterval(updateCountdown, 60000);
+
+  // uppdatera varje sekund (för att sekunder ska fungera korrekt)
+  setInterval(updateCountdown, 1000);
 }
