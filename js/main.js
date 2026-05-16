@@ -17,7 +17,8 @@ import { initCountdown } from "./ui.js";
 import {
   initAuthListener,
   isTipsLocked
-} from "./firebase.js";import { getFlag } from "./flags.js";
+} from "./firebase.js";
+import { getFlag } from "./flags.js";
 import { loadAllUsers } from "./firebase.js";
 import { actualResults } from "./results.js";
 import { listenToMatches } from "./realtime.js";
@@ -36,6 +37,14 @@ import { initMatchFilters, renderMatches } from "./matches.js";
 // =========================
 // GLOBAL STATE
 // =========================
+
+const DEV_MODE = true;
+
+function isLockedForUI() {
+  if (DEV_MODE) return false; // 👈 viktig: alltid olåst i dev
+  return isTipsLocked();
+}
+
 let hasLoadedMatches = false;
 let liveUpdateInterval = null;
 let previousLeaderboard = [];
@@ -252,7 +261,7 @@ previousLeaderboard = leaderboard;
 // =========================
 function lockBettingUI() {
 
-  if (!isTipsLocked()) return;
+  if (!isLockedForUI()) return;
 
   console.log("Tips are locked");
 
@@ -317,3 +326,30 @@ listenToMatches((updates) => {
   renderBettingMatches(window.matches);
 });
 });
+
+// =========================
+// DEV MODE (FOR TESTING)
+// =========================
+if (DEV_MODE) {
+
+  window.devSimulateResult = function (matchId, homeScore, awayScore) {
+
+    console.log("DEV: simulating result", matchId);
+
+    const update = [{
+      id: matchId,
+      home_score: homeScore,
+      away_score: awayScore,
+      status: "completed"
+    }];
+
+    const merged = applyMatchUpdates(window.matches, update);
+
+    window.matches = merged;
+
+    renderMatches(window.matches);
+    renderBettingMatches(window.matches);
+    renderLeaderboard();
+  };
+
+}
