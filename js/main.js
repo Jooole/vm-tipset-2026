@@ -327,32 +327,89 @@ listenToMatches((updates) => {
 });
 });
 
-// =========================
-// DEV MODE (FOR TESTING)
-// =========================
+// =========================================================================
+// DEV MODE (FOR TESTING) - ISOLATED SIMULATION
+// =========================================================================
 if (DEV_MODE) {
+  window.devSimulateResult = async function (matchIdentifier, homeScore, awayScore) {
+    console.log(`%c[DEV MODE] Simulerar match: ${matchIdentifier} -> ${homeScore}-${awayScore}`, "color: #2f6fed; font-weight: bold;");
 
-  window.devSimulateResult = function (matchId, homeScore, awayScore) {
+    if (!window.matches || window.matches.length === 0) {
+      console.error("Simulation misslyckades: window.matches är tom.");
+      return;
+    }
 
-    console.log("DEV: simulate match result", matchId);
+    // 1. DJUP KLONLYFT AV MATCH-STATE (Isolerar minnet helt från Firebase/Live)
+    const simulatedMatches = structuredClone(window.matches);
 
-    // ONLY update matches
-    window.matches = window.matches.map(match => {
-      if (match.id !== matchId) return match;
+    // 2. HITTA MATCHEN (Flexibel sökning på ID eller lagnamn)
+    const match = simulatedMatches.find(m => {
+      const matchIdStr = String(m.id).toLowerCase();
+      const lookupStr = String(matchIdentifier).toLowerCase();
+      const combinedTeams = `${m.homeTeam}-${m.awayTeam}`.toLowerCase();
+      
+      return matchIdStr === lookupStr || combinedTeams.includes(lookupStr) || m.homeTeam.toLowerCase().includes(lookupStr) || m.awayTeam.toLowerCase().includes(lookupStr);
+    });
+
+    if (!match) {
+      console.error(`Kunde inte hitta match via söksträng: "${matchIdentifier}"`);
+      console.log("Möjliga match-strängar att skriva i konsolen:", window.matches.map(m => `${m.homeTeam}-${m.awayTeam}`));
+      return;
+    }
+
+    // 3. APPLICERA DE SIMULERADE RESULTATEN PÅ KOPIAN
+    match.homeScore = Number(homeScore);
+    match.awayScore = Number(awayScore);
+    match.status = "finished";
+
+    console.log(`Match hittad! Simulerar: ${match.homeTeam} ${match.homeScore} : ${match.awayScore} ${match.awayTeam}`);
+
+    // 4. RENDER MATCH UI TILLFÄLLIGT
+    renderMatches(simulatedMatches);
+
+    // 5. BERÄKNA SIMULERAD LEADERBOARD DIREKT TILL UI UTAN FIRESTORE-WRITES
+    const tableBody = document.getElementById("leaderboard-body");
+    if (!tableBody) {
+      console.warn("Leaderboard-tabellen hittades inte i DOM:en");
+      return;
+    }
+
+    // Vi laddar in användarna men räknar poäng mot vår fejkade 'simulatedMatches'
+    const allUsers = await loadAllUsers();
+    
+    // Använd sparade window.allTips om de finns, annars hämta färska
+    const tipsToUse = (window.allTips && window.allTips.length > 0) ? window.allTips : await loadAllTips();
+
+    const simulatedLeaderboard = allUsers.map(user => {
+      const tipsEntry = tipsToUse.find(t => t.userId === user.userId);
+      const uTips = tipsEntry?.data || {};
+
+      // Räkna ut poängen baserat på simulerade matcher istället för window.matches
+      const points = calculateUserPoints({
+        userTips: uTips,
+        matches: simulatedMatches, 
+        actualResults
+      });
 
       return {
-        ...match,
-        homeScore,
-        awayScore,
-        status: "finished"
+        userId: user.userId,
+        name: user.data?.displayName || user.userId,
+        points
       };
     });
 
-    // ONLY render match list (NOT betting UI)
-    renderMatches(window.matches);
+    // Sortera simulerat resultat
+    simulatedLeaderboard.sort((a, b) => b.points - a.points);
 
-    // leaderboard is fine
-    renderLeaderboard();
+    // Generera tillfälligt UI för tabellen
+    tableBody.innerHTML = simulatedLeaderboard.map((user, index) => `
+      <tr style="background-color: #fffbeb;">
+        <td>${index + 1} (Sim)</td>
+        <td>${user.name} <span style="color: #d97706; font-size: 0.8rem;">[Simulerad]</span></td>
+        <td style="font-weight: bold; color: #b45309;">${user.points}</td>
+      </tr>
+    `).join("");
+
+    console.log("%c[DEV MODE] Simulering klar! Leaderboard temporärt uppdaterad i UI. Ladda om sidan för att återställa live-data.", "color: #10b981; font-weight: bold;");
   };
-
 }

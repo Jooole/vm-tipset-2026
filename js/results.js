@@ -154,8 +154,7 @@ export function calculateUserPoints({
    * =========================
    */
 
-  const predictedWinner =
-    userTips.playoffs?.winner?.[0];
+  const predictedWinner = userTips.playoffs?.winner?.["0"] || userTips.playoffs?.winner?.[0];
 
   if (
     predictedWinner &&
