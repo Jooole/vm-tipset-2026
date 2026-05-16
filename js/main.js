@@ -38,6 +38,7 @@ import { initMatchFilters, renderMatches } from "./matches.js";
 // =========================
 let hasLoadedMatches = false;
 let liveUpdateInterval = null;
+let previousLeaderboard = [];
 
 window.matches = [];
 window.allTips = [];
@@ -202,14 +203,48 @@ async function renderLeaderboard() {
   });
 
   leaderboard.sort((a, b) => b.points - a.points);
+const leaderboardWithDelta = leaderboard.map((user, index) => {
 
-  tableBody.innerHTML = leaderboard.map((user, index) => `
+  const prevIndex = previousLeaderboard.findIndex(
+    u => u.userId === user.userId
+  );
+
+  let change = 0;
+
+  if (prevIndex !== -1) {
+    change = prevIndex - index;
+  }
+
+  return {
+    ...user,
+    rank: index + 1,
+    change
+  };
+});
+  tableBody.innerHTML = leaderboardWithDelta.map(user => {
+
+  const arrow =
+    user.change > 0 ? "↑" :
+    user.change < 0 ? "↓" : "–";
+
+  const changeClass =
+    user.change > 0 ? "up" :
+    user.change < 0 ? "down" : "stable";
+
+  return `
     <tr>
-      <td>${index + 1}</td>
-      <td>${user.name}</td>
+      <td>${user.rank}</td>
+      <td>
+        ${user.name}
+        <span class="rank-change ${changeClass}">
+  ${arrow} ${user.change !== 0 ? Math.abs(user.change) : ""}
+</span>
+      </td>
       <td>${user.points}</td>
     </tr>
-  `).join("");
+  `;
+}).join("");
+previousLeaderboard = leaderboard;
 }
 
 // =========================
@@ -265,7 +300,7 @@ initAuthListener(async (user) => {
   lockBettingUI();
   
  // 4. REALTIME UPDATES
-  listenToMatches((updates) => {
+listenToMatches((updates) => {
   console.log("Matches updated in realtime");
 
   if (!window.matches || window.matches.length === 0) {
@@ -277,8 +312,8 @@ initAuthListener(async (user) => {
 
   window.matches = merged;
 
-  // uppdatera UI utan att tappa state
-  renderAllUI(window.matches);
-  renderLeaderboard();
+  // ONLY update match UI (no full re-render)
+  renderMatches(window.matches);
+  renderBettingMatches(window.matches);
 });
 });

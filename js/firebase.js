@@ -50,11 +50,11 @@ export const db = getFirestore(app);
 
 /**
  * =========================
- * TIPPS LOCK
+ * TIPPS LOCK (1h before the first game starts)
  * =========================
  */
 
-export const LOCK_TIME = new Date("2020-06-11T20:00:00Z");
+export const LOCK_TIME = new Date("2026-06-11T20:00:00Z");
 
 export function isTipsLocked() {
   return Date.now() >= LOCK_TIME.getTime();

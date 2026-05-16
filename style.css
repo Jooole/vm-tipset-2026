@@ -803,6 +803,20 @@ td {
     width: 80px;
 }
 
+.rank-change.up {
+    color: green;
+    font-weight: 600;
+}
+
+.rank-change.down {
+    color: red;
+    font-weight: 600;
+}
+
+.rank-change.stable {
+    color: #888;
+}
+
 /* ========================================
    SMALL SCREENS
 ======================================== */

@@ -6,8 +6,10 @@ import {
 import { db } from "./firebase.js";
 
 let hasInitialLoad = false;
+let lastValidMatches = [];
 
 export function listenToMatches(callback) {
+
   return onSnapshot(collection(db, "matches"), (snapshot) => {
 
     const matches = snapshot.docs.map(doc => ({
@@ -15,23 +17,34 @@ export function listenToMatches(callback) {
       ...doc.data()
     }));
 
-    // 1. SKYDDA mot första tomma snapshot
-    if (!hasInitialLoad) {
-      hasInitialLoad = true;
-
-      if (!matches.length) {
-        console.warn("Realtime: first snapshot empty - ignoring");
-        return;
-      }
-    }
-
-    // 2. SKYDDA mot efterföljande tomma snapshots
-    if (!matches || !Array.isArray(matches)) {
+    // 1. VALIDERA TYPE (alltid)
+    if (!Array.isArray(matches)) {
       console.warn("Realtime: invalid snapshot");
       return;
     }
 
-    // 3. Uppdatera bara när vi har riktig data
+    // 2. FIRST LOAD: måste ha data
+    if (!hasInitialLoad) {
+      hasInitialLoad = true;
+
+      if (matches.length === 0) {
+        console.warn("Realtime: first snapshot empty - waiting for data");
+        return;
+      }
+
+      lastValidMatches = matches;
+      callback(matches);
+      return;
+    }
+
+    // 3. EMPTY SNAPSHOT SKA INTE KROSSA STATE
+    if (matches.length === 0) {
+      console.warn("Realtime: empty snapshot ignored (keeping last valid state)");
+      return;
+    }
+
+    // 4. NORMAL UPDATE
+    lastValidMatches = matches;
     callback(matches);
   });
 }
