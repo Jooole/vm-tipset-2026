@@ -28,7 +28,8 @@ import {
   renderAllPlayoffRounds,
   setAllTeams,
   initTopscorerAutocomplete,
-  hydrateBettingUI
+  hydrateBettingUI,
+  fillInputsFromState
 } from "./betting.js";
 
 import { players } from "./players.js";
@@ -281,51 +282,61 @@ initAuthListener(async (user) => {
     return;
   }
 
-  console.log("Loading user tips...");
+  console.log("Hämtar data från Firebase först...");
 
-  // 1. LOAD MATCHES FIRST
-  await initMatches();
+  try {
+    // 1. HÄMTA ANVÄNDARENS TIPS FRÅN FIREBASE FÖRST
+    const savedTips = await loadTips(user.uid) || {};
+    window.allTips = await loadAllTips();
 
-  // 2. LOAD USER DATA
-  const savedTips = await loadTips(user.uid) || {};
-  window.allTips = await loadAllTips();
+    window.userTips = {
+      matches: {},
+      playoffs: {},
+      topScorer: "",
+      goals: 0,
+      ...savedTips
+    };
 
-  window.userTips = {
-    matches: {},
-    playoffs: {},
-    topScorer: "",
-    goals: 0,
-    ...savedTips
-  };
+    console.log("Firebase-data laddad och klar!");
 
-  console.log("State ready");
+    // 2. LADDA MATCHEN OCH RITA UT UI NU NÄR DATAN FINNS I MINNET
+    await initMatches();
 
-  // 3. INIT UI
-  console.log("INITING MATCH FILTERS");
+    console.log("State ready och UI uppdaterat");
 
-  initMatchFilters();
-  initNavigation();
-  initCountdown();
-  lockBettingUI();
-  
- // 4. REALTIME UPDATES
-listenToMatches((updates) => {
-  console.log("Matches updated in realtime");
+    // 3. INITIERA ALLA FILTERS OCH NAVIGATION
+    console.log("INITING MATCH FILTERS");
+    initMatchFilters();
+    initNavigation();
+    initCountdown();
+    lockBettingUI();
 
-  if (!window.matches || window.matches.length === 0) {
-    console.warn("Realtime ignored - no base matches yet");
-    return;
+  } catch (error) {
+    console.error("Kunde inte starta appen korrekt:", error);
   }
+  
+  // 4. REALTIME UPDATES
+  listenToMatches(async (updates) => {
+    console.log("Matches updated in realtime");
 
-  const merged = applyMatchUpdates(window.matches, updates);
+    if (!window.matches || window.matches.length === 0) {
+      console.warn("Realtime saknade bas-matcher. Hämtar från API/Cache istället...");
+      await initMatches();
+    }
 
-  window.matches = merged;
+    if (!window.matches || window.matches.length === 0) {
+      return;
+    }
 
-  // ONLY update match UI (no full re-render)
-  renderMatches(window.matches);
-  renderBettingMatches(window.matches);
-});
-});
+    const merged = applyMatchUpdates(window.matches, updates);
+    window.matches = merged;
+
+    renderMatches(window.matches);
+    renderBettingMatches(window.matches);
+  });
+
+}); // Stänger initAuthListener
+
 
 // =========================================================================
 // DEV MODE (FOR TESTING) - ISOLATED SIMULATION
@@ -339,10 +350,10 @@ if (DEV_MODE) {
       return;
     }
 
-    // 1. DJUP KLONLYFT AV MATCH-STATE (Isolerar minnet helt från Firebase/Live)
+    // 1. DJUP KLONLYFT AV MATCH-STATE
     const simulatedMatches = structuredClone(window.matches);
 
-    // 2. HITTA MATCHEN (Flexibel sökning på ID eller lagnamn)
+    // 2. HITTA MATCHEN
     const match = simulatedMatches.find(m => {
       const matchIdStr = String(m.id).toLowerCase();
       const lookupStr = String(matchIdentifier).toLowerCase();
@@ -353,38 +364,28 @@ if (DEV_MODE) {
 
     if (!match) {
       console.error(`Kunde inte hitta match via söksträng: "${matchIdentifier}"`);
-      console.log("Möjliga match-strängar att skriva i konsolen:", window.matches.map(m => `${m.homeTeam}-${m.awayTeam}`));
       return;
     }
 
-    // 3. APPLICERA DE SIMULERADE RESULTATEN PÅ KOPIAN
+    // 3. APPLICERA RESULTATEN PÅ KOPIAN
     match.homeScore = Number(homeScore);
     match.awayScore = Number(awayScore);
     match.status = "finished";
-
-    console.log(`Match hittad! Simulerar: ${match.homeTeam} ${match.homeScore} : ${match.awayScore} ${match.awayTeam}`);
 
     // 4. RENDER MATCH UI TILLFÄLLIGT
     renderMatches(simulatedMatches);
 
     // 5. BERÄKNA SIMULERAD LEADERBOARD DIREKT TILL UI UTAN FIRESTORE-WRITES
     const tableBody = document.getElementById("leaderboard-body");
-    if (!tableBody) {
-      console.warn("Leaderboard-tabellen hittades inte i DOM:en");
-      return;
-    }
+    if (!tableBody) return;
 
-    // Vi laddar in användarna men räknar poäng mot vår fejkade 'simulatedMatches'
     const allUsers = await loadAllUsers();
-    
-    // Använd sparade window.allTips om de finns, annars hämta färska
     const tipsToUse = (window.allTips && window.allTips.length > 0) ? window.allTips : await loadAllTips();
 
     const simulatedLeaderboard = allUsers.map(user => {
       const tipsEntry = tipsToUse.find(t => t.userId === user.userId);
       const uTips = tipsEntry?.data || {};
 
-      // Räkna ut poängen baserat på simulerade matcher istället för window.matches
       const points = calculateUserPoints({
         userTips: uTips,
         matches: simulatedMatches, 
@@ -398,10 +399,8 @@ if (DEV_MODE) {
       };
     });
 
-    // Sortera simulerat resultat
     simulatedLeaderboard.sort((a, b) => b.points - a.points);
 
-    // Generera tillfälligt UI för tabellen
     tableBody.innerHTML = simulatedLeaderboard.map((user, index) => `
       <tr style="background-color: #fffbeb;">
         <td>${index + 1} (Sim)</td>
@@ -410,6 +409,6 @@ if (DEV_MODE) {
       </tr>
     `).join("");
 
-    console.log("%c[DEV MODE] Simulering klar! Leaderboard temporärt uppdaterad i UI. Ladda om sidan för att återställa live-data.", "color: #10b981; font-weight: bold;");
+    console.log("%c[DEV MODE] Simulering klar!", "color: #10b981; font-weight: bold;");
   };
 }

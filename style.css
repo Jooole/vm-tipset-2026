@@ -248,6 +248,8 @@ nav {
     margin-top: 1rem;
     padding: 1rem 1.5rem;
 
+    font-size: 1rem;
+
     border: none;
     border-radius: 8px;
 
@@ -1002,6 +1004,10 @@ td {
         padding: 1rem;
     }
 
+    #countdown {
+        font-size: 28px;
+    }
+
     .betting-section,
     .playoff-section,
     .top-scorer-section,
@@ -1043,7 +1049,6 @@ td {
     }
 
     table {
-        display: block;
         overflow-x: auto;
     }
 

@@ -58,14 +58,19 @@ function autoSave() {
   clearTimeout(saveTimeout);
 
   saveTimeout = setTimeout(() => {
-    if (!window.currentUser) return;
+    if (!window.currentUser) {
+      console.warn("Autosave blockerad: Ingen användare är inloggad.");
+      return;
+    }
 
-    const payload = structuredClone
-  ? structuredClone(window.userTips)
-  : JSON.parse(JSON.stringify(window.userTips));
+    // Fixa den avbrutna strukturen till en stabil klon
+    const payload = typeof structuredClone === "function" 
+      ? structuredClone(window.userTips) 
+      : JSON.parse(JSON.stringify(window.userTips));
 
+    console.log("Autosave triggad! Sparar till Firestore...", payload);
     saveTips(window.currentUser.uid, payload);
-  }, 500);
+  }, 1000); // Sparar 1 sekund efter att användaren slutat skriva
 }
 
 /**
@@ -116,23 +121,21 @@ function autoSave() {
 
 function bindMatchInputs() {
   document.querySelectorAll(".match-card").forEach(card => {
-
     const inputs = card.querySelectorAll("input");
     if (!inputs.length) return;
 
-    inputs.forEach(input => {
-      input.oninput = () => {
+    const matchId = card.dataset.id;
+    if (!matchId) return;
 
-        const matchId = card.dataset.id;
-        if (!matchId) return;
+    // Vi lyssnar på när användaren skriver i den första rutan (Hemmalag)
+    inputs[0].oninput = () => {
+      updateState(`matches.${matchId}.home`, inputs[0].value);
+    };
 
-        updateState(`matches.${matchId}`, {
-  home: inputs[0].value,
-  away: inputs[1].value
-});
-
-      };
-    });
+    // Vi lyssnar på när användaren skriver i den andra rutan (Bortalag)
+    inputs[1].oninput = () => {
+      updateState(`matches.${matchId}.away`, inputs[1].value);
+    };
   });
 }
 
@@ -323,7 +326,7 @@ function saveCurrentUserTips() {
  * FILL BETTING INPUTS FROM STATE
  * =========================
  */
-function fillInputsFromState() {
+export function fillInputsFromState() {
   const cards = document.querySelectorAll(".match-card");
 
   cards.forEach(card => {
@@ -344,9 +347,20 @@ function fillInputsFromState() {
 function hydrateBettingUI() {
   renderBettingMatches(window.matches || []);
   renderAllPlayoffRounds();
-  fillInputsFromState();
-  hydrateTopScorer();
-  hydrateGoals();
+  
+  // 🌟 NYTT: Vi väntar 200 millisekunder så att alla rullistor och textfält 
+  // har hunnit ritas ut på skärmen, sen stoppar vi in all sparad data!
+  setTimeout(() => {
+    fillInputsFromState(); // Fyller i matcherna (t.ex. 2-1)
+    hydrateTopScorer();    // Fyller i namnet på skytteligavinnaren
+    hydrateGoals();        // Fyller i antalet mål
+    
+    // Vi tvingar även slutspelets rullistor att ritas om en gång till 
+    // nu när de garanterat vet vad användaren har tippat
+    renderAllPlayoffRounds(); 
+    
+    console.log("Allt slutspels- och skytteligadata har tryckts in i UI!");
+  }, 200);
 }
 
 function hydrateTopScorer() {
