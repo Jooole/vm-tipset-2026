@@ -842,6 +842,14 @@ td {
 
 @media (max-width: 900px) {
 
+    .main-header-text {
+        font-size: 28px;
+    }
+
+    .header-inner {
+        gap: 1rem;
+    }
+
     main {
         padding: 1rem;
     }
@@ -875,6 +883,10 @@ td {
 ========================= */
 
 @media (max-width: 768px) {
+
+    .main-header-text {
+        font-size: 22px;
+    }
 
     .menu-toggle {
         display: block;
