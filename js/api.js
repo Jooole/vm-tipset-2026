@@ -10,7 +10,7 @@
 
 
 //Mock-data för att testa utan API
-const USE_MOCK = true; //ändra till false för att sluta använda mock-data
+const USE_MOCK = false; //ändra till false för att sluta använda mock-data
 const MOCK_MATCHES = [
   {
     kickoff_utc: "2026-06-11T19:00:00.000Z",

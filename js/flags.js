@@ -88,5 +88,5 @@ export function getFlag(code) {
     return "";
   }
 
-  return `https://flagcdn.com/24x18/${iso2}.png`;
+return `https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/flags/4x3/${iso2}.svg`;
 }
