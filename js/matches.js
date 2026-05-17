@@ -42,9 +42,17 @@ export function renderMatches(data) {
 
   // Loopar igenom alla matcher i listan och förvandlar varje match-objekt till HTML-kod
   const html = data.map(match => {
-    // Sätter reservtext om lagnamn skulle saknas i datan
-    const homeTeam = match.homeTeam || "Ännu inte avgjort";
-    const awayTeam = match.awayTeam || "Ännu inte avgjort";
+
+// Om matchens grupp är "Slutspel" OCH lagnamnet är tomt eller strängen "null", så hämtar vi vår snygga text istället!
+const isPlayoff = match.group === "Slutspel";
+
+const homeTeam = isPlayoff && (!match.homeTeam || match.homeTeam === "null") 
+  ? hamtaSlutspelsPlaceholder(match.id, "home") 
+  : (match.homeTeam || "Ännu inte avgjort");
+
+const awayTeam = isPlayoff && (!match.awayTeam || match.awayTeam === "null") 
+  ? hamtaSlutspelsPlaceholder(match.id, "away") 
+  : (match.awayTeam || "Ännu inte avgjort");
 
     // Kontrollerar om mål-fälten är tomma (null eller undefined)
     const homeEmpty = match.homeScore == null;
@@ -75,7 +83,7 @@ export function renderMatches(data) {
     <div class="match-center">
 
       <div class="team">
-        <span class="team-name">${match.homeTeam}</span>
+        <span class="team-name">${homeTeam}</span>
         ${match.homeFlag ? `<img class="flag" src="${match.homeFlag}" />` : ""}
       </div>
 
@@ -91,7 +99,7 @@ export function renderMatches(data) {
 
       <div class="team">
         ${match.awayFlag ? `<img class="flag" src="${match.awayFlag}" />` : ""}
-        <span class="team-name">${match.awayTeam}</span>
+        <span class="team-name">${awayTeam}</span>
       </div>
 
     </div>
@@ -182,4 +190,92 @@ function getAllTeamsFromMatches(matches) {
 
   // Gör om vår "Set" till en vanlig lista (Array) och sorterar den i bokstavsordning (A-Ö)
   return Array.from(teams).sort();
+}
+
+
+// Enkel hjälpfunktion som översätter API:ets engelska slutspels-text till svenska
+function snyggaTillSlutspelstext(engelskText) {
+  if (!engelskText) return "Ännu inte avgjort";
+
+  // Vi gör om texten till små bokstäver så att det är lättare att jämföra
+  const text = engelskText.toLowerCase();
+
+  // Om texten innehåller "winner", byt ut till "Vinnare" + behåll resten (t.ex. Grupp A)
+  if (text.includes("winner")) {
+    return engelskText.replace(/Winner of /i, "Vinnare ").replace(/Winner /i, "Vinnare ");
+  }
+
+  // Om texten innehåller "runner-up" eller "second", byt ut till "Tvåa"
+  if (text.includes("runner-up") || text.includes("runner up") || text.includes("2nd")) {
+    return engelskText.replace(/Runner-up of /i, "Tvåa ").replace(/Runner-up /i, "Tvåa ").replace(/2nd /i, "Tvåa ");
+  }
+
+  // Om det är en specifik slutspelsmatch (t.ex. W49 = Vinnare match 49)
+  if (text.startsWith("w") && !isNaN(text.substring(1))) {
+    return `Vinnare match ${text.substring(1)}`;
+  }
+
+  // Om texten redan är fin eller om vi inte hittar en mall, visa den som den är
+  return engelskText;
+}
+
+
+// En helt exakt funktion baserad på ditt API:s unika ID-nummer för slutspelet 2026
+function hamtaSlutspelsPlaceholder(matchId, side) {
+  const id = Number(matchId);
+
+  // ==========================================
+  // 16-DELSFINALER (Matchas mot dina API-id:n)
+  // ==========================================
+  if (id === 82) return side === "home" ? "Tvåa Grupp A" : "Tvåa Grupp B";
+  if (id === 95) return side === "home" ? "Vinnare Grupp C" : "Tvåa Grupp F";
+  if (id === 93) return side === "home" ? "Vinnare Grupp E" : "Bästa trea (A/B/C/D/F)";
+  if (id === 101) return side === "home" ? "Vinnare Grupp F" : "Tvåa Grupp C";
+  if (id === 79) return side === "home" ? "Tvåa Grupp E" : "Tvåa Grupp I";
+  if (id === 75) return side === "home" ? "Vinnare Grupp I" : "Bästa trea (C/D/F/G/H)";
+  if (id === 100) return side === "home" ? "Vinnare Grupp A" : "Bästa trea (C/E/F/H/I)";
+  if (id === 104) return side === "home" ? "Vinnare Grupp L" : "Bästa trea (E/H/I/J/K)";
+  if (id === 88) return side === "home" ? "Vinnare Grupp G" : "Bästa trea (A/E/H/I/J)";
+  if (id === 83) return side === "home" ? "Vinnare Grupp D" : "Bästa trea (B/E/F/I/J)";
+  if (id === 81) return side === "home" ? "Vinnare Grupp H" : "Tvåa Grupp J";
+  if (id === 98) return side === "home" ? "Tvåa Grupp K" : "Tvåa Grupp L";
+  if (id === 97) return side === "home" ? "Vinnare Grupp B" : "Bästa trea (B/E/F/G/I/J)";
+  if (id === 78) return side === "home" ? "Tvåa Grupp D" : "Tvåa Grupp G";
+  if (id === 86) return side === "home" ? "Vinnare Grupp J" : "Tvåa Grupp H";
+  if (id === 80) return side === "home" ? "Vinnare Grupp K" : "Bästa trea (D/E/I/J/L)";
+
+  // ==========================================
+  // ÅTTONDELSFINALER
+  // ==========================================
+  if (id === 91) return side === "home" ? "Vinnare match 73" : "Vinnare match 75";
+  if (id === 94) return side === "home" ? "Vinnare match 74" : "Vinnare match 77";
+  if (id === 89) return side === "home" ? "Vinnare match 76" : "Vinnare match 78";
+  if (id === 74) return side === "home" ? "Vinnare match 79" : "Vinnare match 80";
+  if (id === 99) return side === "home" ? "Vinnare match 76" : "Vinnare match 78";
+  if (id === 77) return side === "home" ? "Vinnare match 79" : "Vinnare match 80";
+  if (id === 87) return side === "home" ? "Vinnare match 81" : "Vinnare match 82";
+  if (id === 103) return side === "home" ? "Vinnare match 83" : "Vinnare match 84";
+
+  // ==========================================
+  // KVARTSFINALER
+  // ==========================================
+  if (id === 96) return side === "home" ? "Vinnare match 89" : "Vinnare match 90";
+  if (id === 92) return side === "home" ? "Vinnare match 93" : "Vinnare match 94";
+  if (id === 85) return side === "home" ? "Vinnare match 91" : "Vinnare match 92";
+  if (id === 90) return side === "home" ? "Vinnare match 95" : "Vinnare match 96";
+
+  // ==========================================
+  // SEMIFINALER
+  // ==========================================
+  if (id === 76) return side === "home" ? "Vinnare match 97" : "Vinnare match 98";
+  if (id === 102) return side === "home" ? "Vinnare match 99" : "Vinnare match 100";
+
+  // ==========================================
+  // BRONSMATCH OCH FINAL
+  // ==========================================
+  if (id === 84) return side === "home" ? "Förlorare match 93" : "Förlorare match 94"; // Bronsmatch
+  if (id === 73) return side === "home" ? "Vinnare match 101" : "Vinnare match 102"; // 🏆 VM-FINALEN!
+
+  // Säkerhetsreserv om något ID skulle saknas
+  return side === "home" ? "Slutspelslag A" : "Slutspelslag B";
 }
