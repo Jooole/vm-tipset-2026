@@ -384,25 +384,32 @@ initAuthListener(async (user) => {
               // 5. Skapa arket i minnet med det unika namnet
               const sheet = workbook.addWorksheet(sheetName);
 
-              // Definiera kolumnerna i Excel-arket
+              // 1. Definiera kolumnernas bredd först (utan att skapa en rubrikrad automatisk)
               sheet.columns = [
-                { header: 'Kategori / Match / Lag', key: 'match', width: 45 },
-                { header: 'Tippat Resultat / Info', key: 'tip', width: 25 },
-                { header: 'Grupp / Typ', key: 'group', width: 20 }
+                { key: 'match', width: 45 },
+                { key: 'tip', width: 25 },
+                { key: 'group', width: 20 }
               ];
 
-              // Gör rubrikraden fet
-              sheet.getRow(1).font = { bold: true };
-
-              // Skriv ut användarinformation högst upp på fliken
+              // 2. Skriv ut användarinformationen på RAD 1
               sheet.addRow({
                 match: `Tippare: ${userIdentifier}`,
                 tip: userTipsData ? "TIPS INLÄMNAT" : "TOMT TIPS",
                 group: `Export: ${new Date().toLocaleDateString("sv-SE")}`
               });
 
-              sheet.addRow({ match: "--------------------------------------------------", tip: "-------------", group: "-------------" });
-              sheet.addRow({ match: "⚽ GRUPPSPELSMATCHER", tip: "-------------", group: "-------------" });
+              // 3. Skriv ut kolumnrubrikerna manuellt på RAD 2
+              const headerRow = sheet.addRow({
+                match: 'Kategori / Match / Lag',
+                tip: 'Tippat Resultat / Info',
+                group: 'Grupp / Typ'
+              });
+
+              // Gör den nya rubrikraden (Rad 2) fet
+              headerRow.font = { bold: true };
+
+              sheet.addRow({ match: "", tip: "", group: "" });
+              sheet.addRow({ match: "⚽ GRUPPSPELSMATCHER", tip: "", group: "" });
 
               // 🌟 1. MATCHA OCH SKRIV UT GRUPPSPELSMATCHERNA
               if (window.matches && window.matches.length > 0) {
@@ -456,31 +463,32 @@ initAuthListener(async (user) => {
 
               rundor.forEach(runda => {
                 sheet.addRow({ match: "", tip: "", group: "" }); 
-                sheet.addRow({ match: runda.namn, tip: "-------------", group: "-------------" });
+                sheet.addRow({ match: runda.namn, tip: "", group: "" });
 
                 const lagData = playoffData[runda.key] || [];
                 const lagLista = Object.values(lagData);
 
                 if (lagLista.length > 0) {
                   lagLista.forEach((lagNamn, i) => {
+                    // 🌟 NY STRUKTUR: Kolumn 1 får etiketten, Kolumn 2 får själva lagnamnet
                     sheet.addRow({
-                      match: runda.key === 'winner' ? `Mästare: ${lagNamn}` : `Lag ${i + 1}: ${lagNamn}`,
-                      tip: "Vidare-tippad",
+                      match: runda.key === 'winner' ? "Mästare" : `Lag ${i + 1}`,
+                      tip: lagNamn,
                       group: "Slutspelsval"
                     });
                   });
                 } else {
                   sheet.addRow({
-                    match: "Inga lag tippade för denna runda ännu",
+                    match: "Inga val gjorda",
                     tip: "-",
-                    group: "Tom"
+                    group: "Slutspelsval"
                   });
                 }
               });
 
               // 🌟 3. EXTRA-FRÅGOR LÄNGST NER
               sheet.addRow({ match: "", tip: "", group: "" });
-              sheet.addRow({ match: "🌟 EXTRA-FRÅGOR", tip: "-------------", group: "-------------" });
+              sheet.addRow({ match: "🌟 EXTRA-FRÅGOR", tip: "", group: "" });
 
               sheet.addRow({
                 match: "Vem blir turneringens skyttekung?",
@@ -488,11 +496,15 @@ initAuthListener(async (user) => {
                 group: "Skyttekung"
               });
 
-              sheet.addRow({
+              // Skapa raden för antal mål och spara en referens till den
+              const goalsRow = sheet.addRow({
                 match: "Hur många mål gör skytteligavinnaren totalt?",
                 tip: userTipsData?.goals !== undefined && userTipsData?.goals !== null ? userTipsData.goals : "-",
                 group: "Antal mål"
               });
+
+              // 🌟 TVINGA CELLEN I KOLUMN 2 (B) ATT VARA VÄNSTERSTÄLLD
+              goalsRow.getCell(2).alignment = { horizontal: 'left' };
             });
 
             // Generera filen och trigga automatisk nedladdning i webbläsaren
