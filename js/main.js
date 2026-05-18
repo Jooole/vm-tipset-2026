@@ -34,6 +34,7 @@ import {
 
 import { players } from "./players.js";
 import { initMatchFilters, renderMatches } from "./matches.js";
+import { ALLOWED_ADMINS, checkIsAdmin } from "./config.js";
 
 // =========================
 // GLOBAL STATE
@@ -310,6 +311,217 @@ initAuthListener(async (user) => {
     initNavigation();
     initCountdown();
     lockBettingUI();
+
+    // 🌟 ADMIN-KONTROLL: KOMPLETT & ISOLERAD EXCEL-EXPORT
+    const isAdmin = checkIsAdmin(user.uid);
+
+    if (isAdmin) {
+      console.log("Admin verifierad. Skapar backup-knapp i nav-menyn...");
+      
+      const navMenu = document.getElementById("main-nav"); 
+      
+      if (navMenu && !document.getElementById("admin-download-btn")) {
+        
+        const adminBtn = document.createElement("button");
+        adminBtn.id = "admin-download-btn";
+        adminBtn.innerText = "📥 Ladda ner allas tips";
+        adminBtn.className = "nav-btn btn-admin"; 
+        
+        adminBtn.onclick = async () => {
+          adminBtn.innerText = "⏳ Genererar Excel...";
+          adminBtn.disabled = true;
+
+          try {
+            console.log("Admin startar backup: Hämtar data från Firebase...");
+            
+            // Hämta både alla tips och alla användarprofiler (för att få riktiga namn)
+            const [currentTips, allUsers] = await Promise.all([
+              loadAllTips(),
+              loadAllUsers()
+            ]);
+
+            if (currentTips.length === 0) {
+              alert("Det finns inga sparade tips i databasen ännu!");
+              return;
+            }
+
+            // Skapa ett nytt Excel-dokument
+            const workbook = new ExcelJS.Workbook();
+            workbook.creator = "Admin Backup";
+            workbook.created = new Date();
+
+            // 🌟 DEKLARERA RÄKNAREN HÄR (UTANFÖR LOOPEN SÅ DEN INTE NOLLSTÄLLS)
+            const användaFlikNamn = {};
+
+            // Loopa igenom varje tips i databasen och skapa en egen flik per tippare
+            currentTips.forEach((tipsEntry) => {
+              const userTipsData = tipsEntry.data || null;
+              
+              // 🌟 EN ENKEL OCH ISOLERAD ORDLISTA FÖR DINA DELTAGARE
+              // Koppla användarens unika UID-sträng till deras riktiga namn
+              const namnOrdlista = {
+                "NJEOKLuqUUNWjoDMvXrsMAlSFE12": "Joel",
+                "v0ZTH8NitNMhEGWRLt35Kkfja4k2": "Staffan",
+                "bhNdUqdWvCbE6KwnBblm6myZzKh1": "Testkonto"
+              };
+
+              // Hämta namnet från ordlistan baserat på tipsfilens userId, fall tillbaka på ett kortat UID om det saknas
+              const userIdentifier = namnOrdlista[tipsEntry.userId] || `Anvandare (${tipsEntry.userId ? tipsEntry.userId.substring(0, 5) : "Okand"})`;
+
+              // 3. Använd namnet direkt som grundnamn för Excel-fliken (max 20 tecken, inga specialtecken)
+              let grundFlikNamn = userIdentifier.replace(/[*?:\/\\\[\]]/g, "").substring(0, 20).trim();
+              if (!grundFlikNamn) grundFlikNamn = "Tippare";
+
+              // 4. SÄKERHETSSPÄRR: Om fliknamnet redan har använts, lägg till _2, _3 osv så att ingen flik raderas
+              let sheetName = grundFlikNamn;
+              if (användaFlikNamn[sheetName.toLowerCase()]) {
+                användaFlikNamn[sheetName.toLowerCase()] += 1;
+                sheetName = `${grundFlikNamn}_${användaFlikNamn[sheetName.toLowerCase()]}`;
+              } else {
+                användaFlikNamn[sheetName.toLowerCase()] = 1;
+              }
+
+              // 5. Skapa arket i minnet med det unika namnet
+              const sheet = workbook.addWorksheet(sheetName);
+
+              // Definiera kolumnerna i Excel-arket
+              sheet.columns = [
+                { header: 'Kategori / Match / Lag', key: 'match', width: 45 },
+                { header: 'Tippat Resultat / Info', key: 'tip', width: 25 },
+                { header: 'Grupp / Typ', key: 'group', width: 20 }
+              ];
+
+              // Gör rubrikraden fet
+              sheet.getRow(1).font = { bold: true };
+
+              // Skriv ut användarinformation högst upp på fliken
+              sheet.addRow({
+                match: `Tippare: ${userIdentifier}`,
+                tip: userTipsData ? "TIPS INLÄMNAT" : "TOMT TIPS",
+                group: `Export: ${new Date().toLocaleDateString("sv-SE")}`
+              });
+
+              sheet.addRow({ match: "--------------------------------------------------", tip: "-------------", group: "-------------" });
+              sheet.addRow({ match: "⚽ GRUPPSPELSMATCHER", tip: "-------------", group: "-------------" });
+
+              // 🌟 1. MATCHA OCH SKRIV UT GRUPPSPELSMATCHERNA
+              if (window.matches && window.matches.length > 0) {
+                
+                // Filtrera ut gruppspelsmatcher (sorterar bort eventuella slutspelsmatcher)
+                const gruppMatcher = window.matches.filter(m => {
+                  return m.group && !m.group.toLowerCase().includes("slutspel");
+                });
+
+                // Sortera matcherna kronologiskt efter datum och tid
+                gruppMatcher.sort((a, b) => {
+                  const dateA = `${a.date || ""} T${a.time || ""}`;
+                  const dateB = `${b.date || ""} T${b.time || ""}`;
+                  return dateA.localeCompare(dateB);
+                });
+
+                gruppMatcher.forEach((match, mIdx) => {
+                  // Bakåtkompatibel ID-kontroll (stödjer både siffer-ID "2" och gamla text-ID "Mexico-South Africa-0")
+                  const genereratTextId = `${match.homeTeam}-${match.awayTeam}-${mIdx}`;
+                  const pappersTip = userTipsData?.matches?.[match.id] || userTipsData?.matches?.[genereratTextId];
+                  
+                  let tippatResultat = "-";
+                  
+                  if (pappersTip) {
+                    const hScore = pappersTip.home;
+                    const aScore = pappersTip.away;
+                    if (hScore !== undefined && hScore !== null && aScore !== undefined && aScore !== null) {
+                      tippatResultat = `${hScore} - ${aScore}`;
+                    }
+                  }
+
+                  sheet.addRow({
+                    match: `${match.homeTeam || "Ej klart"} - ${match.awayTeam || "Ej klart"}`,
+                    tip: tippatResultat,
+                    group: match.group || "Gruppspel"
+                  });
+                });
+              }
+
+              // 🌟 2. SKRIV UT ALLA SLUTSPELSVAL
+              const playoffData = userTipsData?.playoffs || {};
+
+              const rundor = [
+                { key: 'round-of-32', namn: '🏆 LAG TILL 16-DELSFINAL (32 lag)' },
+                { key: 'round-of-16', namn: '🏆 LAG TILL 8-DELSFINAL (16 lag)' },
+                { key: 'quarterfinals', namn: '🏆 LAG TILL KVARTSFINAL (8 lag)' },
+                { key: 'semifinals', namn: '🏆 LAG TILL SEMIFINAL (4 lag)' },
+                { key: 'final', namn: '🏆 LAG TILL FINAL (2 lag)' },
+                { key: 'winner', namn: '🥇 VM-VINNARE' }
+              ];
+
+              rundor.forEach(runda => {
+                sheet.addRow({ match: "", tip: "", group: "" }); 
+                sheet.addRow({ match: runda.namn, tip: "-------------", group: "-------------" });
+
+                const lagData = playoffData[runda.key] || [];
+                const lagLista = Object.values(lagData);
+
+                if (lagLista.length > 0) {
+                  lagLista.forEach((lagNamn, i) => {
+                    sheet.addRow({
+                      match: runda.key === 'winner' ? `Mästare: ${lagNamn}` : `Lag ${i + 1}: ${lagNamn}`,
+                      tip: "Vidare-tippad",
+                      group: "Slutspelsval"
+                    });
+                  });
+                } else {
+                  sheet.addRow({
+                    match: "Inga lag tippade för denna runda ännu",
+                    tip: "-",
+                    group: "Tom"
+                  });
+                }
+              });
+
+              // 🌟 3. EXTRA-FRÅGOR LÄNGST NER
+              sheet.addRow({ match: "", tip: "", group: "" });
+              sheet.addRow({ match: "🌟 EXTRA-FRÅGOR", tip: "-------------", group: "-------------" });
+
+              sheet.addRow({
+                match: "Vem blir turneringens skyttekung?",
+                tip: userTipsData?.topScorer || "-",
+                group: "Skyttekung"
+              });
+
+              sheet.addRow({
+                match: "Hur många mål gör skytteligavinnaren totalt?",
+                tip: userTipsData?.goals !== undefined && userTipsData?.goals !== null ? userTipsData.goals : "-",
+                group: "Antal mål"
+              });
+            });
+
+            // Generera filen och trigga automatisk nedladdning i webbläsaren
+            const buffer = await workbook.xlsx.writeBuffer();
+            const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+            const url = window.URL.createObjectURL(blob);
+            
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `VM_2026_Alla_Tips_${new Date().toISOString().split("T")[0]}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            console.log("Excel-nedladdning klar!");
+
+          } catch (err) {
+            console.error("Kunde inte generera Excel-backup:", err);
+            alert("Något gick fel vid genereringen av Excel-filen. Se detaljer i konsolen.");
+          } finally {
+            adminBtn.innerText = "📥 Ladda ner allas tips";
+            adminBtn.disabled = false;
+          }
+        };
+
+        navMenu.appendChild(adminBtn);
+      }
+    }
 
   } catch (error) {
     console.error("Kunde inte starta appen korrekt:", error);
