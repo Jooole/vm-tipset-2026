@@ -74,7 +74,7 @@ export function initCountdown() {
     const seconds = Math.floor((diff / 1000) % 60);
 
     countdownElement.textContent =
-      `${days} dagar ${hours} timmar ${minutes} minuter ${seconds} sekunder`;
+      `${days} dagar ${hours}h ${minutes}m ${seconds}s`;
   }
 
   updateCountdown();

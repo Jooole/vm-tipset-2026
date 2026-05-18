@@ -100,9 +100,9 @@ function autoSave() {
         <span>${homeTeam} - ${awayTeam}</span>
 
         <div class="score-inputs">
-          <input type="number" min="0" class="home-score betting-input">
+          <input type="number" inputmode="numeric" min="0" class="home-score betting-input">
           <div class="score-divider">-</div>
-          <input type="number" min="0" class="away-score betting-input">
+          <input type="number" inputmode="numeric"min="0" class="away-score betting-input">
         </div>
 
       </div>
@@ -319,8 +319,15 @@ function initTopscorerAutocomplete(players) {
     renderDropdown(""); // Tom sträng = visa allt
   };
 
-  // 🌟 2. SKRIV-LYSSNARE: Filtrera listan och dölj tomma länder i realtid
+  // 🌟 2. SKRIV-LYSSNARE: Filtrera listan och hantera om fältet töms helt
   input.oninput = () => {
+    const nuvarandeVärde = input.value.trim();
+
+    // Om användaren har suddat ut allt, spara det tomma värdet till databasen direkt
+    if (nuvarandeVärde === "") {
+      updateState("topScorer", "");
+    }
+
     results.classList.add("show");
     renderDropdown(input.value);
   };

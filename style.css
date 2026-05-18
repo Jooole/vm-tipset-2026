@@ -1076,25 +1076,81 @@ td {
         flex-direction: column;
     }
 
-    .match-status.upcoming,
-    .match-status.live {
-        font-size: 12px;
+    #topscorer-results {
+        position: fixed !important;
+
+        /* 🌟 PLACERING: Fäst i botten istället för toppen */
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        top: auto !important;
+        /* Nollställ topptvingandet */
+
+        /* 🌟 STORLEK: Ta upp hela bredden i botten och sätt en säker maxhöjd */
+        width: 100vw !important;
+        max-height: 250px !important;
+        /* Anpassad höjd för att få plats ovanför tangentbordet */
+        display: none;
+
+        /* INNEHÅLL & FIX */
+        overflow-y: auto !important;
+        background-color: #ffffff !important;
+
+        /* 🌟 DESIGN: Gör om den till ett snyggt "Bottom Sheet" (som i moderna appar) */
+        box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.2) !important;
+        /* Skugga uppåt */
+        border: none !important;
+        /* Blå elegant linje i överkanten */
+        z-index: 99999 !important;
+        padding-top: 8px;
     }
 
-    .match-center {
-        gap: 1rem;
+    /* Tvinga fram block-visning vid .show */
+    #topscorer-results.show {
+        display: block !important;
     }
 
-    .score-box {
-        font-size: 1.5rem;
+    /* Tvinga rubriker och spelarrader att ta upp full bredd på mobilen */
+    #topscorer-results .dropdown-header,
+    #topscorer-results .dropdown-item {
+        display: block !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        float: none !important;
     }
 
-    .team-name {
-        font-size: 1rem;
+    /* 🌟 FIXEN: Tvinga textstorleken till 16px på mobil för att stoppa automatisk zoom */
+    .betting-input,
+    #topscorer-input,
+    .input-base {
+        font-size: 16px !important;
     }
 
-    table {
-        overflow-x: auto;
+    /* Gör även placeholders lite mer anpassade till den nya storleken om det behövs */
+    .input-base::placeholder {
+        font-size: 14px;
     }
+}
+
+.match-status.upcoming,
+.match-status.live {
+    font-size: 12px;
+}
+
+.match-center {
+    gap: 1rem;
+}
+
+.score-box {
+    font-size: 1.5rem;
+}
+
+.team-name {
+    font-size: 1rem;
+}
+
+table {
+    overflow-x: auto;
+}
 
 }
