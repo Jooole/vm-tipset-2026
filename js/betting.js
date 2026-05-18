@@ -264,36 +264,73 @@ function renderAllPlayoffRounds() {
  */
 
 function initTopscorerAutocomplete(players) {
-
   const input = document.getElementById("topscorer-input");
   const results = document.getElementById("topscorer-results");
 
   if (!input || !results) return;
 
-  input.oninput = () => {
+  // 🌟 CENTRAL RENDER-FUNKTION: Bygger dropdown-menyn strukturerat per land
+  function renderDropdown(filterText = "") {
+    results.innerHTML = ""; // Töm listan först
 
-    const value = input.value.toLowerCase().trim();
+    // Gruppera de spelare vars namn matchar sökningen
+    const grouped = {};
+    players.forEach(player => {
+      // player är nu ett objekt: { name: "...", country: "..." }
+      const matchesSearch = player.name.toLowerCase().includes(filterText.toLowerCase().trim());
+      
+      if (matchesSearch) {
+        if (!grouped[player.country]) {
+          grouped[player.country] = [];
+        }
+        grouped[player.country].push(player.name);
+      }
+    });
 
-    results.innerHTML = "";
-    if (!value) return;
+    // Loopa igenom länderna och rita ut rubriker + spelarrader
+    Object.keys(grouped).forEach(country => {
+      // Skapa en icke-valbar landsrubrik
+      const header = document.createElement("div");
+      header.className = "dropdown-header";
+      header.innerText = country;
+      results.appendChild(header);
 
-    players
-      .filter(p => p.toLowerCase().includes(value))
-      .forEach(player => {
+      // Skapa spelarna under detta land
+      grouped[country].forEach(playerName => {
+        const item = document.createElement("div");
+        item.className = "dropdown-item";
+        item.innerText = playerName;
 
-        const div = document.createElement("div");
-        div.textContent = player;
-
-        div.onclick = () => {
-          input.value = player;
-          results.innerHTML = "";
-
-          updateState("topScorer", player);
+        // När man klickar på en spelare, välj den och spara till state
+        item.onclick = () => {
+          input.value = playerName;
+          results.classList.remove("show"); // Göm dropdownen efter val
+          updateState("topScorer", playerName); // Sparar valet till Firestore
         };
 
-        results.appendChild(div);
+        results.appendChild(item);
       });
+    });
+  }
+
+  // 🌟 1. KLICK-LYSSNARE: Visa alla spelare sorterade per land direkt när man klickar i fältet
+  input.onclick = () => {
+    results.classList.add("show");
+    renderDropdown(""); // Tom sträng = visa allt
   };
+
+  // 🌟 2. SKRIV-LYSSNARE: Filtrera listan och dölj tomma länder i realtid
+  input.oninput = () => {
+    results.classList.add("show");
+    renderDropdown(input.value);
+  };
+
+  // 🌟 3. STÄNG-LYSSNARE: Göm dropdownen om användaren klickar utanför fältet/menyn
+  document.addEventListener("click", (e) => {
+    if (e.target !== input && !results.contains(e.target)) {
+      results.classList.remove("show");
+    }
+  });
 }
 
 /**

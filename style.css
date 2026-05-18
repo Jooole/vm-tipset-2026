@@ -570,25 +570,31 @@ nav {
     margin-top: 0.25rem;
 }
 
+/* Container-dropdownen under ditt inputfält */
 #topscorer-results {
+    display: none;
+    /* 🌟 Gömmer menyn som standard */
     position: absolute;
-
-    top: 100%;
-    left: 0;
-    right: 0;
-
-    background: #fff;
-
-    border: 1px solid #ddd;
-    border-top: none;
-
-    max-height: 220px;
+    /* 🌟 Tvingar dropdownen att fästas i fältets överkant och växa UPPÅT */
+    bottom: 100%;
+    margin-bottom: 4px;
+    /* Ger ett litet snyggt mellanrum mellan fältet och menyn */
+    max-height: 280px;
+    /* 🌟 Tvingar menyn att max hålla ca 8 rader */
     overflow-y: auto;
-
+    /* 🌟 Aktiverar scroll automatiskt vid behov */
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    box-shadow: var(--shadow-soft);
     z-index: 1000;
+    width: 100%;
+    /* Samma bredd som inputfältet */
+}
 
-    box-shadow:
-        0 8px 20px rgba(0, 0, 0, 0.1);
+/* Visas när klassen .show läggs till via JavaScript */
+#topscorer-results.show {
+    display: block;
 }
 
 #topscorer-results div {
@@ -599,6 +605,34 @@ nav {
 
 #topscorer-results div:hover {
     background: #f2f2f2;
+    color: #374151;
+}
+
+/* 🏆 De icke-valbara landsrubrikerna */
+.dropdown-header {
+    padding: 6px 12px;
+    font-weight: bold;
+    background-color: #f3f4f6;
+    /* Snygg ljusgrå färg */
+    color: #374151;
+    pointer-events: none;
+    /* 🌟 Gör rubriken helt oklickbar */
+    font-size: 12px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+/* ⚽ De valbara spelarna */
+.dropdown-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    color: #000;
+    font-size: 14px;
+}
+
+.dropdown-item:hover {
+    background-color: var(--color-primary);
+    /* Använder din befintliga blå tema-färg */
+    color: white;
 }
 
 
