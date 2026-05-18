@@ -170,7 +170,9 @@ export function calculateUserPoints({
    */
 
   if (
-    userTips.topScorer === actualResults.topScorer
+    userTips.topScorer && 
+    actualResults.topScorer && 
+    userTips.topScorer.trim().toLowerCase() === actualResults.topScorer.trim().toLowerCase()
   ) {
     total += POINTS.topScorer;
   }

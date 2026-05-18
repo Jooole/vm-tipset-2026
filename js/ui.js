@@ -13,26 +13,30 @@ export function initNavigation() {
   const pages = document.querySelectorAll(".page");
   const ctaButton = document.getElementById("cta-btn");
 
-  navButtons.forEach(btn => {
-    btn.addEventListener("click", () => {
-      const target = btn.dataset.page;
+// Central funktion som läser av URL-hashen och visar rätt sida
+  function navigateFromHash() {
+    const currentHash = window.location.hash.replace("#", "") || "home"; // "home" är din startsida
 
-      pages.forEach(p => p.classList.remove("active"));
-      navButtons.forEach(b => b.classList.remove("active"));
-
-      document.getElementById(target)?.classList.add("active");
-      btn.classList.add("active");
-    });
-  });
-
-  ctaButton?.addEventListener("click", () => {
+    // Dölj alla sidor och avmarkera alla knappar
     pages.forEach(p => p.classList.remove("active"));
     navButtons.forEach(b => b.classList.remove("active"));
 
-    document.getElementById("betting")?.classList.add("active");
-    document.querySelector('[data-page="betting"]')?.classList.add("active");
+    // Visa den sida och markera den knapp som matchar hashen
+    document.getElementById(currentHash)?.classList.add("active");
+    document.querySelector(`[data-page="${currentHash}"]`)?.classList.add("active");
+  }
+
+  // Knapparna uppdaterar bara URL:en nu
+  navButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      window.location.hash = btn.dataset.page;
+    });
   });
-}
+
+  // CTA-knappen uppdaterar också bara URL:en
+  ctaButton?.addEventListener("click", () => {
+    window.location.hash = "betting";
+  });
 
 //Öppna/stänga main menu på mobil
 const menuToggle = document.getElementById("menu-toggle");
@@ -47,6 +51,12 @@ document.querySelectorAll(".nav-btn").forEach(btn => {
     mainNav.classList.remove("open");
   });
 });
+// Lyssna på om hashen ändras (t.ex. om man trycker bakåt/framåt i webbläsaren)
+  window.addEventListener("hashchange", navigateFromHash);
+
+  // Kör direkt vid uppstart så att man hamnar rätt vid en refresh/omladdning
+  navigateFromHash();
+}
 
 export function initCountdown() {
   const countdownElement = document.getElementById("countdown");
