@@ -189,17 +189,25 @@ export function calculateUserPoints({
 
 /**
  * =========================
- * ACTUAL RESULTS (HARD CODED FOR NOW)
+ * ACTUAL RESULTS (DYNAMIC)
  * =========================
  */
-export const actualResults = {
-  roundOf32: ["Brazil", "France"],
-  roundOf16: ["Brazil"],
-  quarterfinals: ["Brazil"],
-  semifinals: ["Brazil"],
-  final: ["Brazil"],
-  winner: "Brazil",
 
-  topScorer: "Mbappé",
-  topScorerGoals: 8
+// Denna hålls tom här och fylls på i Firebase när VM startar!
+export let actualResults = {
+  roundOf32: [],
+  roundOf16: [],
+  quarterfinals: [],
+  semifinals: [],
+  final: [],
+  winner: "",
+  topScorer: "",
+  topScorerGoals: 0
 };
+
+// Funktion för att uppdatera facit i minnet från main.js
+export function setActualResults(newResults) {
+  if (newResults) {
+    actualResults = newResults;
+  }
+}

@@ -9,32 +9,17 @@ console.log("App started");
 // =========================
 // IMPORTS
 // =========================
-import { loadTips, loadAllTips } from "./firebase.js";
-import { calculateUserPoints } from "./results.js";
-import { fetchMatches } from "./api.js";
-import { initNavigation } from "./ui.js";
-import { initCountdown } from "./ui.js";
-import {
-  initAuthListener,
-  isTipsLocked
-} from "./firebase.js";
-import { getFlag } from "./flags.js";
-import { loadAllUsers, saveUserProfile } from "./firebase.js";
-import { actualResults } from "./results.js";
-import { listenToMatches } from "./realtime.js";
-
-import {
-  renderBettingMatches,
-  renderAllPlayoffRounds,
-  setAllTeams,
-  initTopscorerAutocomplete,
-  hydrateBettingUI,
-  fillInputsFromState
-} from "./betting.js";
-
-import { players } from "./players.js";
+import { initAuthListener, isTipsLocked, loadTips, loadAllTips, loadActualResults, loadAllUsers, saveUserProfile } from "./firebase.js";
+import { calculateUserPoints, setActualResults, actualResults } from "./results.js";
+import { renderBettingMatches, renderAllPlayoffRounds, setAllTeams, initTopscorerAutocomplete, hydrateBettingUI, fillInputsFromState } from "./betting.js";
+import { initNavigation, initCountdown } from "./ui.js";
 import { initMatchFilters, renderMatches } from "./matches.js";
 import { ALLOWED_ADMINS, checkIsAdmin } from "./config.js";
+import { fetchMatches } from "./api.js";
+import { listenToMatches } from "./realtime.js";
+import { getFlag } from "./flags.js";
+import { players } from "./players.js";
+
 
 // =========================
 // GLOBAL STATE
@@ -270,17 +255,13 @@ initAuthListener(async (user) => {
   console.log("Hämtar data från Firebase först...");
 
   try {
+    // Hämta facit från Firestore och tryck in det i results.js-systemet
+    const dbFacit = await loadActualResults();
+    setActualResults(dbFacit);
+
     // 1. HÄMTA ANVÄNDARENS TIPS FRÅN FIREBASE FÖRST
     const savedTips = await loadTips(user.uid) || {};
     window.allTips = await loadAllTips();
-
-    window.userTips = {
-      matches: {},
-      playoffs: {},
-      topScorer: "",
-      goals: 0,
-      ...savedTips
-    };
 
     console.log("Firebase-data laddad och klar!");
 

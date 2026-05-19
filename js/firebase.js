@@ -197,6 +197,38 @@ export async function loadAllTips() {
 
 /**
  * =========================
+ * FIRESTORE: ADMIN / FACIT
+ * =========================
+ */
+
+export async function loadActualResults() {
+  try {
+    const ref = doc(db, "admin", "facit");
+    const snap = await getDoc(ref);
+
+    if (snap.exists()) {
+      return snap.data();
+    } else {
+      console.warn("Inget facit-dokument hittades i Firestore! Returnerar tomt facit.");
+      return {
+        roundOf32: [],
+        roundOf16: [],
+        quarterfinals: [],
+        semifinals: [],
+        final: [],
+        winner: "",
+        topScorer: "",
+        topScorerGoals: 0
+      };
+    }
+  } catch (error) {
+    console.error("Kunde inte hämta facit från Firestore:", error);
+    return null;
+  }
+}
+
+/**
+ * =========================
  * DEBUG
  * =========================
  */
