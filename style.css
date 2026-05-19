@@ -191,6 +191,10 @@ nav {
     cursor: pointer;
 }
 
+.nav-btn:hover {
+    background: #ccc;
+}
+
 .nav-btn.active {
     background: #2563eb;
     color: white;
@@ -259,6 +263,10 @@ nav {
     cursor: pointer;
 }
 
+#cta-btn:hover {
+    background: #0e8439;
+    transition: ease-in 100ms;
+}
 
 /* ========================================
    CARD SECTIONS
@@ -1110,8 +1118,16 @@ body:has(#login-btn) main {
         padding: 1rem;
     }
 
+    .hero {
+        padding: 1rem;
+    }
+
     #countdown {
         font-size: 28px;
+    }
+
+    .prizes-section {
+        padding: 0;
     }
 
     .betting-section,
