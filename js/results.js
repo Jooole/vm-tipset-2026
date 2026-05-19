@@ -31,6 +31,11 @@ const POINTS = {
 function getMatchPoints(prediction, result) {
   if (!prediction || !result) return 0;
 
+  // SÄKERHETSSPÄRR: Om matchen inte har spelats (homeScore är null), ge 0 poäng direkt!
+  if (result.homeScore === null || result.awayScore === null) {
+    return 0;
+  }
+
   const predictedHome = Number(prediction.home);
   const predictedAway = Number(prediction.away);
 
@@ -177,9 +182,10 @@ export function calculateUserPoints({
     total += POINTS.topScorer;
   }
 
+  // SÄKERHETSSPÄRR: Räkna bara poäng om skytteligavinnaren faktiskt har gjort minst 1 mål i facit!
   if (
-    Number(userTips.goals) ===
-    Number(actualResults.topScorerGoals)
+    actualResults.topScorerGoals > 0 &&
+    Number(userTips.goals) === Number(actualResults.topScorerGoals)
   ) {
     total += POINTS.topScorerGoals;
   }

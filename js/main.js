@@ -9,7 +9,7 @@ console.log("App started");
 // =========================
 // IMPORTS
 // =========================
-import { initAuthListener, isTipsLocked, loadTips, loadAllTips, loadActualResults, loadAllUsers, saveUserProfile } from "./firebase.js";
+import { initAuthListener, isTipsLocked, loadTips, loadAllTips, loadActualResults, loadAllUsers, saveUserProfile, saveTips } from "./firebase.js";
 import { calculateUserPoints, setActualResults, actualResults } from "./results.js";
 import { renderBettingMatches, renderAllPlayoffRounds, setAllTeams, initTopscorerAutocomplete, hydrateBettingUI, fillInputsFromState } from "./betting.js";
 import { initNavigation, initCountdown } from "./ui.js";
@@ -175,11 +175,6 @@ async function renderLeaderboard(usersToUse, tipsToUse) {
   const allUsers = usersToUse || await loadAllUsers();
   const allTipsList = tipsToUse || ((window.allTips && window.allTips.length > 0) ? window.allTips : await loadAllTips());
 
-// 🌟 UTÖKAD FELSÖKNINGSLOGG (Tillfällig):
-  console.log("--- FELSÖKNING LEADERBOARD ---");
-  console.log("Antal användare hämtade från Firebase:", allUsers ? allUsers.length : 0, allUsers);
-  console.log("Antal tipshistorik hämtat:", allTipsList ? allTipsList.length : 0);
-
   // Bygg leaderboard för ALLA användare
   const leaderboard = allUsers.map(user => {
     const tipsEntry = allTipsList.find(t => t.userId === user.userId);
@@ -261,12 +256,20 @@ initAuthListener(async (user) => {
 
     // 1. HÄMTA ANVÄNDARENS TIPS FRÅN FIREBASE FÖRST
     const savedTips = await loadTips(user.uid) || {};
+    
+    // Spara ner dina laddade tips till fönstret så att betting.js kommer åt dem!
+    window.userTips = savedTips; 
     window.allTips = await loadAllTips();
 
     console.log("Firebase-data laddad och klar!");
 
     // 2. LADDA MATCHEN OCH RITA UT UI NU NÄR DATAN FINNS I MINNET
     await initMatches();
+
+    // FIXEN: Tvinga gränssnittet att fylla i dina sparade gruppspels-mål i rutorna
+    if (typeof fillInputsFromState === "function") {
+      fillInputsFromState();
+    }
 
     console.log("State ready och UI uppdaterat");
 

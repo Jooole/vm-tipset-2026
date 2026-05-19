@@ -17,7 +17,6 @@ let activeGroup = "Alla grupper"; // Håller koll på vilken grupp som användar
  * Funktion som ritar ut listan med matcher på skärmen baserat på den data den får in
  */
 export function renderMatches(data) {
-  console.log("FIRST MATCH:", data[0]);
 
   // SÄKERHETSVENTIL: Kontrollerar att datan som skickas in faktiskt är en lista (Array).
   // Om det inte är en lista avbryts funktionen direkt för att appen inte ska krascha.
@@ -34,8 +33,6 @@ export function renderMatches(data) {
 
   // Hämtar HTML-behållaren från index.html där matcherna ska ligga
   const matchesList = document.getElementById("matches-list");
-  console.log("DEBUG matchesList element:", matchesList);
-  console.log("DEBUG render input:", data.length);
   
   // Om behållaren inte finns i HTML-koden så avslutar vi direkt
   if (!matchesList) return;
