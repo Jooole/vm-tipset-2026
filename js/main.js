@@ -25,7 +25,7 @@ import { players } from "./players.js";
 // GLOBAL STATE
 // =========================
 
-const DEV_MODE = true;
+const DEV_MODE = false;
 
 function isLockedForUI() {
   if (DEV_MODE) return false; // 👈 viktig: alltid olåst i dev
