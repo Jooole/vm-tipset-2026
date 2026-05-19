@@ -325,18 +325,13 @@ initAuthListener(async (user) => {
             currentTips.forEach((tipsEntry) => {
               const userTipsData = tipsEntry.data || null;
               
-              // 🌟 EN ENKEL OCH ISOLERAD ORDLISTA FÖR DINA DELTAGARE
-              // Koppla användarens unika UID-sträng till deras riktiga namn
-              const namnOrdlista = {
-                "NJEOKLuqUUNWjoDMvXrsMAlSFE12": "Joel",
-                "v0ZTH8NitNMhEGWRLt35Kkfja4k2": "Staffan",
-                "bhNdUqdWvCbE6KwnBblm6myZzKh1": "Testkonto"
-              };
+              // 🌟 LIVE-UPPSLAG: Leta upp användaren i listan vi hämtade från Firebase!
+              const matchandeAnvandare = allUsers.find(u => u.userId === tipsEntry.userId);
+              
+              // Hämta displayName i första hand, fall tillbaka på UID om profilen saknas helt
+              const userIdentifier = matchandeAnvandare?.data?.displayName || `Anvandare (${tipsEntry.userId ? tipsEntry.userId.substring(0, 5) : "Okand"})`;
 
-              // Hämta namnet från ordlistan baserat på tipsfilens userId, fall tillbaka på ett kortat UID om det saknas
-              const userIdentifier = namnOrdlista[tipsEntry.userId] || `Anvandare (${tipsEntry.userId ? tipsEntry.userId.substring(0, 5) : "Okand"})`;
-
-              // 3. Använd namnet direkt som grundnamn för Excel-fliken (max 20 tecken, inga specialtecken)
+              // Använd namnet direkt som grundnamn för Excel-fliken (max 20 tecken, inga specialtecken)
               let grundFlikNamn = userIdentifier.replace(/[*?:\/\\\[\]]/g, "").substring(0, 20).trim();
               if (!grundFlikNamn) grundFlikNamn = "Tippare";
 
