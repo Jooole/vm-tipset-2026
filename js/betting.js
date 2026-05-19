@@ -97,7 +97,7 @@ function autoSave() {
     return `
       <div class="match-card" data-id="${matchId}">
 
-        <span>${homeTeam} - ${awayTeam}</span>
+        <span>${window.translateTeam(homeTeam)} - ${window.translateTeam(awayTeam)}</span>
 
         <div class="score-inputs">
           <input type="number" inputmode="numeric" min="0" class="home-score betting-input">
@@ -176,7 +176,7 @@ function renderPlayoffRound({ containerId, title, slots }) {
 
         ${availableTeams.map(team => `
           <option value="${team}" ${team === selectedTeam ? "selected" : ""}>
-            ${team}
+            ${window.translateTeam(team)}
           </option>
         `).join("")}
 
@@ -292,7 +292,8 @@ function initTopscorerAutocomplete(players) {
       // Skapa en icke-valbar landsrubrik
       const header = document.createElement("div");
       header.className = "dropdown-header";
-      header.innerText = country;
+      // 🌟 HÄR FÄRGAS LANDSRUBRIKEN I DROPDOWNEN SVENSK
+      header.innerText = window.translateTeam(country);
       results.appendChild(header);
 
       // Skapa spelarna under detta land

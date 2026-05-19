@@ -40,6 +40,66 @@ window.matches = [];
 window.allTips = [];
 window.userTips = {};
 
+// 🇸🇪 SVENSK ORDLISTA FÖR PRESENTATION I UI:T
+window.teamTranslations = {
+  "Algeria": "Algeriet",
+"Argentina": "Argentina",
+"Australia": "Australien",
+"Austria": "Österrike",
+"Belgium": "Belgien",
+"Bosnia-Herzegovina": "Bosnien och Hercegovina",
+"Brazil": "Brasilien",
+"Canada": "Kanada",
+"Cabo Verde": "Kap Verde",
+"Colombia": "Colombia",
+"Congo DR": "Kongo-Kinshasa",
+"Côte d'Ivoire": "Elfenbenskusten",
+"Croatia": "Kroatien",
+"Curaçao": "Curaçao",
+"Czechia": "Tjeckien",
+"Denmark": "Danmark",
+"Ecuador": "Ecuador",
+"Egypt": "Egypten",
+"England": "England",
+"France": "Frankrike",
+"Germany": "Tyskland",
+"Ghana": "Ghana",
+"Haiti": "Haiti",
+"IR Iran": "Iran",
+"Iraq": "Irak",
+"Japan": "Japan",
+"Jordan": "Jordanien",
+"Korea Republic": "Sydkorea",
+"Mexico": "Mexiko",
+"Morocco": "Marocko",
+"Netherlands": "Nederländerna",
+"New Zealand": "Nya Zeeland",
+"Norway": "Norge",
+"Panama": "Panama",
+"Paraguay": "Paraguay",
+"Poland": "Polen",
+"Portugal": "Portugal",
+"Qatar": "Qatar",
+"Saudi Arabia": "Saudiarabien",
+"Scotland": "Skotland",
+"Senegal": "Senegal",
+"South Africa": "Sydafrika",
+"Spain": "Spanien",
+"Sweden": "Sverige",
+"Switzerland": "Schweiz",
+"Tunisia": "Tunisien",
+"Turkey": "Turkiet",
+"Uruguay": "Uruguay",
+"USA": "USA",
+"Uzbekistan": "Uzbekistan",
+};
+
+// Funktion som returnerar svenskt namn om det finns, annars det engelska originalet
+window.translateTeam = function(englishName) {
+  if (!englishName) return "Ej klart";
+  return window.teamTranslations[englishName.trim()] || englishName;
+};
+
 function applyMatchUpdates(baseMatches, updates) {
   return baseMatches.map(match => {
     const override = updates.find(u => u.id === match.id);

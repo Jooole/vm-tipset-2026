@@ -43,13 +43,14 @@ export function renderMatches(data) {
 // Om matchens grupp är "Slutspel" OCH lagnamnet är tomt eller strängen "null", så hämtar vi vår snygga text istället!
 const isPlayoff = match.group === "Slutspel";
 
+// 🌟 HÄR FÄRGAS NAMNEN SVENSKA: Vi översätter bara om det är ett riktigt lagnamn från API:et!
 const homeTeam = isPlayoff && (!match.homeTeam || match.homeTeam === "null") 
   ? hamtaSlutspelsPlaceholder(match.id, "home") 
-  : (match.homeTeam || "Ännu inte avgjort");
+  : window.translateTeam(match.homeTeam || "Ännu inte avgjort");
 
 const awayTeam = isPlayoff && (!match.awayTeam || match.awayTeam === "null") 
   ? hamtaSlutspelsPlaceholder(match.id, "away") 
-  : (match.awayTeam || "Ännu inte avgjort");
+  : window.translateTeam(match.awayTeam || "Ännu inte avgjort");
 
     // Kontrollerar om mål-fälten är tomma (null eller undefined)
     const homeEmpty = match.homeScore == null;
