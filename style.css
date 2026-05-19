@@ -578,19 +578,19 @@ nav {
     margin-top: 0.25rem;
 }
 
-/* Container-dropdownen under ditt inputfält */
+/* Container-dropdownen under inputfältet */
 #topscorer-results {
     display: none;
-    /* 🌟 Gömmer menyn som standard */
+    /* Gömmer menyn som standard */
     position: absolute;
-    /* 🌟 Tvingar dropdownen att fästas i fältets överkant och växa UPPÅT */
+    /* Tvingar dropdownen att fästas i fältets överkant och växa UPPÅT */
     bottom: 100%;
     margin-bottom: 4px;
     /* Ger ett litet snyggt mellanrum mellan fältet och menyn */
     max-height: 280px;
-    /* 🌟 Tvingar menyn att max hålla ca 8 rader */
+    /* Tvingar menyn att max hålla ca 8 rader */
     overflow-y: auto;
-    /* 🌟 Aktiverar scroll automatiskt vid behov */
+    /* Aktiverar scroll automatiskt vid behov */
     background: white;
     border: 1px solid var(--color-border);
     border-radius: 8px;
@@ -616,20 +616,19 @@ nav {
     color: #374151;
 }
 
-/* 🏆 De icke-valbara landsrubrikerna */
+/* De icke-valbara landsrubrikerna */
 .dropdown-header {
     padding: 6px 12px;
     font-weight: bold;
     background-color: #f3f4f6;
-    /* Snygg ljusgrå färg */
     color: #374151;
     pointer-events: none;
-    /* 🌟 Gör rubriken helt oklickbar */
+    /* Gör rubriken helt oklickbar */
     font-size: 12px;
     border-bottom: 1px solid var(--color-border);
 }
 
-/* ⚽ De valbara spelarna */
+/* De valbara spelarna */
 .dropdown-item {
     padding: 8px 12px;
     cursor: pointer;
@@ -639,7 +638,6 @@ nav {
 
 .dropdown-item:hover {
     background-color: var(--color-primary);
-    /* Använder din befintliga blå tema-färg */
     color: white;
 }
 
@@ -709,33 +707,22 @@ nav {
 
 .slider {
     position: absolute;
-
     inset: 0;
-
     cursor: pointer;
-
     background-color: #d1d5db;
-
     border-radius: 999px;
-
     transition: 0.2s ease;
 }
 
 .slider::before {
     content: "";
-
     position: absolute;
-
     width: 24px;
     height: 24px;
-
     left: 4px;
     top: 4px;
-
     border-radius: 50%;
-
     background-color: white;
-
     transition: 0.2s ease;
 }
 
@@ -760,12 +747,9 @@ nav {
 
 .match-item {
     background: white;
-
     border: 1px solid var(--color-border);
     border-radius: 12px;
-
     padding: 1rem 1.5rem;
-
     box-shadow: var(--shadow-soft);
 }
 
@@ -782,7 +766,6 @@ nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
-
     margin-bottom: 1rem;
 }
 
@@ -790,15 +773,12 @@ nav {
     display: flex;
     align-items: center;
     gap: 1rem;
-
     color: #64748b;
 }
 
 .match-status {
     padding: 0.6rem 1rem;
-
     border-radius: 999px;
-
     font-size: 0.9rem;
     font-weight: 600;
 }
@@ -836,7 +816,6 @@ nav {
     justify-content: center;
     align-items: center;
     gap: 1.2rem;
-
     margin-bottom: 1rem;
 }
 
@@ -845,40 +824,31 @@ nav {
     align-items: center;
     justify-content: center;
     gap: 0.8rem;
-
     min-width: 180px;
 }
 
 .team-name {
     font-size: 1.5rem;
     font-weight: 700;
-
     color: #0f172a;
 }
 
 .flag {
     width: 24px;
     height: 18px;
-
     object-fit: cover;
-
     border-radius: 2px;
 }
 
 .score-box {
     width: 48px;
     height: 48px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     border-radius: 12px;
-
     background: #ecfdf5;
-
     color: #047857;
-
     font-family: var(--font-mono);
     font-size: 2rem;
     font-weight: 700;
@@ -901,11 +871,8 @@ nav {
 .match-bottom {
     display: flex;
     justify-content: space-between;
-
     padding-top: 1rem;
-
     border-top: 1px solid var(--color-border);
-
     color: #64748b;
 }
 
@@ -979,7 +946,7 @@ body:has(#login-btn) main {
 #password {
     font-size: 16px !important;
 
-    /* täng av mobilens inbyggda "app-styling" på fälten */
+    /* Stäng av mobilens inbyggda "app-styling" på fälten */
     -webkit-appearance: none;
     /* För Safari/iOS */
     -moz-appearance: none;
@@ -989,7 +956,6 @@ body:has(#login-btn) main {
 
     border: 1px solid #ccc !important;
     border-radius: 8px;
-
 }
 
 /* Säkerställer att även placeholder-texten (input-hinten) får 16px i alla webbläsare */
@@ -1002,9 +968,7 @@ body:has(#login-btn) main {
 #login-btn {
     font-size: 16px !important;
     font-weight: 600 !important;
-    /* Gör texten lite tydligare och mer distinkt */
     cursor: pointer;
-
     margin-top: 1rem;
     width: 100%;
     padding: 0.75rem;
@@ -1076,28 +1040,19 @@ body:has(#login-btn) main {
 
     #main-nav {
         position: absolute;
-
         top: 72px;
         left: 0;
         right: 0;
-
         background: #111827;
-
         padding: 1rem;
-
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
-
         border-top: 1px solid rgba(255, 255, 255, 0.1);
-
         overflow: hidden;
-
         max-height: 0;
         opacity: 0;
-
         pointer-events: none;
-
         transition:
             max-height 0.3s ease,
             opacity 0.2s ease;
@@ -1106,7 +1061,6 @@ body:has(#login-btn) main {
     #main-nav.open {
         max-height: 400px;
         opacity: 1;
-
         pointer-events: auto;
     }
 
@@ -1137,10 +1091,8 @@ body:has(#login-btn) main {
     .filters-box,
     .rules-box {
         background: var(--color-card);
-
         border: 1px solid var(--color-border);
         border-radius: 12px;
-
         padding: 1rem;
         margin-bottom: 2rem;
     }
@@ -1168,14 +1120,14 @@ body:has(#login-btn) main {
     #topscorer-results {
         position: fixed !important;
 
-        /* 🌟 PLACERING: Fäst i botten istället för toppen */
+        /* PLACERING: Fäst i botten istället för toppen */
         bottom: 0 !important;
         left: 0 !important;
         right: 0 !important;
         top: auto !important;
         /* Nollställ topptvingandet */
 
-        /* 🌟 STORLEK: Ta upp hela bredden i botten och sätt en säker maxhöjd */
+        /* STORLEK: Ta upp hela bredden i botten och sätt en säker maxhöjd */
         width: 100vw !important;
         max-height: 250px !important;
         /* Anpassad höjd för att få plats ovanför tangentbordet */
@@ -1185,11 +1137,10 @@ body:has(#login-btn) main {
         overflow-y: auto !important;
         background-color: #ffffff !important;
 
-        /* 🌟 DESIGN: Gör om den till ett snyggt "Bottom Sheet" (som i moderna appar) */
+        /* DESIGN: Gör om den till ett snyggt "Bottom Sheet" (som i moderna appar) */
         box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.2) !important;
         /* Skugga uppåt */
         border: none !important;
-        /* Blå elegant linje i överkanten */
         z-index: 99999 !important;
         padding-top: 8px;
     }
@@ -1208,7 +1159,7 @@ body:has(#login-btn) main {
         float: none !important;
     }
 
-    /* 🌟 FIXEN: Tvinga textstorleken till 16px på mobil för att stoppa automatisk zoom */
+    /* FIXEN: Tvinga textstorleken till 16px på mobil för att stoppa automatisk zoom */
     .betting-input,
     #topscorer-input,
     .input-base {

@@ -15,7 +15,7 @@ export function initNavigation() {
 
 // Central funktion som läser av URL-hashen och visar rätt sida
   function navigateFromHash() {
-    const currentHash = window.location.hash.replace("#", "") || "home"; // "home" är din startsida
+    const currentHash = window.location.hash.replace("#", "") || "home"; // "home" är startsidan
 
     // Dölj alla sidor och avmarkera alla knappar
     pages.forEach(p => p.classList.remove("active"));

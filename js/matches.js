@@ -13,9 +13,7 @@
 let todaysMatchesOnly = false; // Håller koll på om vi BARA ska visa dagens matcher (sant/falskt)
 let activeGroup = "Alla grupper"; // Håller koll på vilken grupp som användaren valt att titta på
 
-/**
- * Funktion som ritar ut listan med matcher på skärmen baserat på den data den får in
- */
+//Funktion som ritar ut listan med matcher på skärmen baserat på den data den får in
 export function renderMatches(data) {
 
   // SÄKERHETSVENTIL: Kontrollerar att datan som skickas in faktiskt är en lista (Array).
@@ -43,7 +41,7 @@ export function renderMatches(data) {
 // Om matchens grupp är "Slutspel" OCH lagnamnet är tomt eller strängen "null", så hämtar vi vår snygga text istället!
 const isPlayoff = match.group === "Slutspel";
 
-// 🌟 HÄR FÄRGAS NAMNEN SVENSKA: Vi översätter bara om det är ett riktigt lagnamn från API:et!
+// HÄR FÄRGAS NAMNEN SVENSKA: Vi översätter bara om det är ett riktigt lagnamn från API:et!
 const homeTeam = isPlayoff && (!match.homeTeam || match.homeTeam === "null") 
   ? hamtaSlutspelsPlaceholder(match.id, "home") 
   : window.translateTeam(match.homeTeam || "Ännu inte avgjort");
@@ -136,9 +134,6 @@ function filterMatches() {
   
   // Skapar en kopia av alla matcher från vårt globala fönster-state (window.matches)
   let filtered = [...window.matches];
-  
-  console.log("ACTIVE GROUP:", activeGroup);
-  console.log("AVAILABLE GROUPS:", window.matches.map(m => m.group));
 
   // STEG 1: Filtrera på grupp (om användaren har valt en specifik grupp istället för "Alla grupper")
   if (activeGroup !== "Alla grupper") {
@@ -177,7 +172,6 @@ export function initMatchFilters() {
 
   // Lyssnar på om användaren byter grupp i rullistan
   groupSelect?.addEventListener("change", () => {
-    console.log("GROUP SELECT CHANGED:", groupSelect.value);
 
     activeGroup = groupSelect.value; // Sparar namnet på den nya gruppen som valdes
     filterMatches(); // Kör filtreringen på nytt

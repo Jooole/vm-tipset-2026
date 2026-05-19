@@ -167,10 +167,7 @@ const MOCK_MATCHES = [
 }
 ];
 
-
-
 const API_KEY = "wc26_JDF2xbAz8PGoYi7PYMRFfS";
-
 const API_URL = "https://api.wc2026api.com/matches";
 
 export async function fetchMatches() {

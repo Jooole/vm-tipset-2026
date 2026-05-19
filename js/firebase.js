@@ -50,7 +50,7 @@ export const db = getFirestore(app);
 
 /**
  * =========================
- * TIPPS LOCK (1h before the first game starts)
+ * TIPPS LOCK (3 days before the first game starts)
  * =========================
  */
 
@@ -118,7 +118,9 @@ export async function saveUserProfile(user) {
     const namnOrdlista = {
       "NJEOKLuqUUNWjoDMvXrsMAlSFE12": "Joel",
       "v0ZTH8NitNMhEGWRLt35Kkfja4k2": "Staffan",
-      "bhNdUqdWvCbE6KwnBblm6myZzKh1": "Testkonto"
+      "C1EjplNlfuWYJrptDvAAAoYUlII2": "Malin",
+      "hjzOSO16LFQy9BqhFcJJOvq9ca33": "Olov",
+      "txWfA35EIyRoLyAHpsZOU1VhtNs1": "Mats",
     };
 
     const bestämNamn = user.displayName || namnOrdlista[user.uid] || user.email.split("@")[0];

@@ -1,6 +1,6 @@
 /**
  * =========================
- * BETTING MODULE (FIXED)
+ * BETTING MODULE
  * =========================
  */
 
@@ -189,7 +189,7 @@ function renderPlayoffRound({ containerId, title, slots }) {
 
 /**
  * =========================
- * PLAYOFF LISTENERS (NO DUPLICATES)
+ * PLAYOFF LISTENERS
  * =========================
  */
 
@@ -269,7 +269,7 @@ function initTopscorerAutocomplete(players) {
 
   if (!input || !results) return;
 
-  // 🌟 CENTRAL RENDER-FUNKTION: Bygger dropdown-menyn strukturerat per land
+  // CENTRAL RENDER-FUNKTION: Bygger dropdown-menyn strukturerat per land
   function renderDropdown(filterText = "") {
     results.innerHTML = ""; // Töm listan först
 
@@ -314,13 +314,13 @@ function initTopscorerAutocomplete(players) {
     });
   }
 
-  // 🌟 1. KLICK-LYSSNARE: Visa alla spelare sorterade per land direkt när man klickar i fältet
+  // 1. KLICK-LYSSNARE: Visa alla spelare sorterade per land direkt när man klickar i fältet
   input.onclick = () => {
     results.classList.add("show");
     renderDropdown(""); // Tom sträng = visa allt
   };
 
-  // 🌟 2. SKRIV-LYSSNARE: Filtrera listan och hantera om fältet töms helt
+  // 2. SKRIV-LYSSNARE: Filtrera listan och hantera om fältet töms helt
   input.oninput = () => {
     const nuvarandeVärde = input.value.trim();
 
@@ -333,7 +333,7 @@ function initTopscorerAutocomplete(players) {
     renderDropdown(input.value);
   };
 
-  // 🌟 3. STÄNG-LYSSNARE: Göm dropdownen om användaren klickar utanför fältet/menyn
+  // 3. STÄNG-LYSSNARE: Göm dropdownen om användaren klickar utanför fältet/menyn
   document.addEventListener("click", (e) => {
     if (e.target !== input && !results.contains(e.target)) {
       results.classList.remove("show");
@@ -393,7 +393,7 @@ function hydrateBettingUI() {
   renderBettingMatches(window.matches || []);
   renderAllPlayoffRounds();
   
-  // 🌟 NYTT: Vi väntar 200 millisekunder så att alla rullistor och textfält 
+  // Vi väntar 200 millisekunder så att alla rullistor och textfält 
   // har hunnit ritas ut på skärmen, sen stoppar vi in all sparad data!
   setTimeout(() => {
     fillInputsFromState(); // Fyller i matcherna (t.ex. 2-1)
