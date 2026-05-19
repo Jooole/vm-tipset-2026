@@ -811,6 +811,18 @@ nav {
    MATCH CENTER
 ======================================== */
 
+/* Styling för det nya VS-elementet innan matcherna har startat */
+.vs-text {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    width: 116px;
+    /* Matchar den totala bredden av de gamla boxarna (48px + 48px + 20px avstånd) */
+    text-align: center;
+}
+
 .match-center {
     display: flex;
     justify-content: center;

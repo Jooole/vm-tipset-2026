@@ -58,6 +58,25 @@ const awayTeam = isPlayoff && (!match.awayTeam || match.awayTeam === "null")
     const homeEmpty = match.homeScore == null;
     const awayEmpty = match.awayScore == null;
 
+    // Bestäm vad som ska visas i mitten baserat på om matchen har ett resultat eller inte
+    let centerDisplayHTML = "";
+    
+    if (homeEmpty || awayEmpty) {
+      // Om resultatet saknas -> Visa bara ett snyggt VS
+      centerDisplayHTML = `<div class="vs-text">VS</div>`;
+    } else {
+      // Om resultatet finns -> Visa de gröna boxarna och kolonet precis som förut
+      centerDisplayHTML = `
+        <div class="score-box">
+          ${match.homeScore}
+        </div>
+        <div class="score-divider">:</div>
+        <div class="score-box">
+          ${match.awayScore}
+        </div>
+      `;
+    }
+
     // Skapar och returnerar det visuella "kortet" för matchen
     return `
   <div class="match-item ${match.status === "live" ? "live-match" : ""}" data-match-id="${match.id || ""}">
@@ -87,15 +106,7 @@ const awayTeam = isPlayoff && (!match.awayTeam || match.awayTeam === "null")
         ${match.homeFlag ? `<img class="flag" src="${match.homeFlag}" />` : ""}
       </div>
 
-      <div class="score-box">
-        ${match.homeScore ?? ""}
-      </div>
-
-      <div class="score-divider">:</div>
-
-      <div class="score-box">
-        ${match.awayScore ?? ""}
-      </div>
+      ${centerDisplayHTML}
 
       <div class="team">
         ${match.awayFlag ? `<img class="flag" src="${match.awayFlag}" />` : ""}
