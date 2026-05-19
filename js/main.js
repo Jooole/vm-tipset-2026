@@ -19,7 +19,7 @@ import {
   isTipsLocked
 } from "./firebase.js";
 import { getFlag } from "./flags.js";
-import { loadAllUsers } from "./firebase.js";
+import { loadAllUsers, saveUserProfile } from "./firebase.js";
 import { actualResults } from "./results.js";
 import { listenToMatches } from "./realtime.js";
 
@@ -183,79 +183,60 @@ function getAllTeamsFromMatches(matches) {
 // =========================
 // LEADERBOARD
 // =========================
-async function renderLeaderboard() {
+async function renderLeaderboard(usersToUse, tipsToUse) {
   const tableBody = document.getElementById("leaderboard-body");
   if (!tableBody) return;
 
-  const [allUsers, allTips] = await Promise.all([
-    loadAllUsers(),
-    loadAllTips()
-  ]);
+  const allUsers = usersToUse || await loadAllUsers();
+  const allTipsList = tipsToUse || ((window.allTips && window.allTips.length > 0) ? window.allTips : await loadAllTips());
 
+// 🌟 UTÖKAD FELSÖKNINGSLOGG (Tillfällig):
+  console.log("--- FELSÖKNING LEADERBOARD ---");
+  console.log("Antal användare hämtade från Firebase:", allUsers ? allUsers.length : 0, allUsers);
+  console.log("Antal tipshistorik hämtat:", allTipsList ? allTipsList.length : 0);
+
+  // Bygg leaderboard för ALLA användare
   const leaderboard = allUsers.map(user => {
-
-    const tipsEntry = allTips.find(
-      t => t.userId === user.userId
-    );
-
-    const userTips = tipsEntry?.data || {};
+    const tipsEntry = allTipsList.find(t => t.userId === user.userId);
+    
+    // 🌟 FIXEN: Om användaren inte har några tips ännu, ge dem ett tomt objekt {} istället för att avbryta med null!
+    const uTips = tipsEntry?.data || {};
 
     const points = calculateUserPoints({
-      userTips,
-      matches: window.matches,
+      userTips: uTips,
+      matches: window.matches || [],
       actualResults
     });
 
     return {
       userId: user.userId,
       name: user.data?.displayName || user.userId,
-      points
+      points: points || 0 // Garantera att det blir en siffra (0) om poängen saknas
     };
+  }); // 🌟 Tog bort .filter(Boolean) så att ingen rensas bort!
+
+  // Sortera: Högst poäng först. Om poängen är lika (t.ex. alla har 0), sortera alfabetiskt på namn.
+  leaderboard.sort((a, b) => {
+    if (b.points !== a.points) {
+      return b.points - a.points;
+    }
+    return a.name.localeCompare(b.name);
   });
 
-  leaderboard.sort((a, b) => b.points - a.points);
-const leaderboardWithDelta = leaderboard.map((user, index) => {
+  // Spara undan i globalt state för trendberäkning
+  previousLeaderboard = [...leaderboard];
 
-  const prevIndex = previousLeaderboard.findIndex(
-    u => u.userId === user.userId
-  );
-
-  let change = 0;
-
-  if (prevIndex !== -1) {
-    change = prevIndex - index;
-  }
-
-  return {
-    ...user,
-    rank: index + 1,
-    change
-  };
-});
-  tableBody.innerHTML = leaderboardWithDelta.map(user => {
-
-  const arrow =
-    user.change > 0 ? "↑" :
-    user.change < 0 ? "↓" : "–";
-
-  const changeClass =
-    user.change > 0 ? "up" :
-    user.change < 0 ? "down" : "stable";
-
-  return `
-    <tr>
-      <td>${user.rank}</td>
-      <td>
-        ${user.name}
-        <span class="rank-change ${changeClass}">
-  ${arrow} ${user.change !== 0 ? Math.abs(user.change) : ""}
-</span>
-      </td>
-      <td>${user.points}</td>
-    </tr>
-  `;
-}).join("");
-previousLeaderboard = leaderboard;
+  // Rita ut i HTML
+  tableBody.innerHTML = leaderboard.map((user, index) => {
+    return `
+      <tr>
+        <td class="rank-column">${index + 1}</td>
+        <td>${user.name}</td>
+        <td class="points-column">${user.points}</td>
+        <td class="trend-column">➡️</td>
+      </tr>
+    `;
+  }).join("");
 }
 
 // =========================
@@ -282,6 +263,9 @@ initAuthListener(async (user) => {
     window.location.href = "login.html";
     return;
   }
+
+  // Spara/uppdatera användaren i databasen automatiskt vid inloggning
+  await saveUserProfile(user);
 
   console.log("Hämtar data från Firebase först...");
 

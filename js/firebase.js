@@ -106,6 +106,35 @@ export async function loadAllUsers() {
   }));
 }
 
+// Sparar eller uppdaterar deltagarens namn i databasen
+export async function saveUserProfile(user) {
+  if (!user) return;
+
+  try {
+    const userRef = doc(db, "users", user.uid);
+    
+    // Vi använder din hårdkodade namn-ordlista som en smart fallback 
+    // om Firebase Auth inte har hunnit sätta ett riktigt displayName än.
+    const namnOrdlista = {
+      "NJEOKLuqUUNWjoDMvXrsMAlSFE12": "Joel",
+      "v0ZTH8NitNMhEGWRLt35Kkfja4k2": "Staffan",
+      "bhNdUqdWvCbE6KwnBblm6myZzKh1": "Testkonto"
+    };
+
+    const bestämNamn = user.displayName || namnOrdlista[user.uid] || user.email.split("@")[0];
+
+    await setDoc(userRef, {
+      displayName: bestämNamn,
+      email: user.email,
+      updatedAt: serverTimestamp() // Återanvänder din inbyggda Firebase-tidsstämpel
+    }, { merge: true });
+
+    console.log(`Användarprofil (${bestämNamn}) sparad i Firestore!`);
+  } catch (error) {
+    console.error("Kunde inte spara användarprofil till Firestore:", error);
+  }
+}
+
 /**
  * =========================
  * FIRESTORE: TIPS
