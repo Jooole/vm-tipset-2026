@@ -182,6 +182,7 @@ nav {
 }
 
 .nav-btn {
+    font-size: 0.9rem;
     padding: 0.6rem 1rem;
 
     border: none;
@@ -243,8 +244,7 @@ nav {
    BUTTONS
 ======================================== */
 
-#cta-btn,
-.save-btn {
+#cta-btn {
     margin-top: 1rem;
     padding: 1rem 1.5rem;
 
@@ -936,6 +936,67 @@ td {
 
 .rank-change.stable {
     color: #888;
+}
+
+/* ========================================
+   LOGIN-SIDA
+======================================== */
+
+/* Styr enbart den vita rutan på login-sidan (genom att kolla att logga-in-knappen finns på sidan) */
+body:has(#login-btn) main {
+    margin: 100px 16px !important;
+}
+
+/* För större skärmar (t.ex. datorer) centrerar vi rutan med 'auto' igen */
+@media (min-width: 432px) {
+    body:has(#login-btn) main {
+        margin: 100px auto !important;
+    }
+}
+
+/* Ökar textstorleken för fälten (både när man skriver och för placeholder-texten) */
+#email,
+#password {
+    font-size: 16px !important;
+
+    /* täng av mobilens inbyggda "app-styling" på fälten */
+    -webkit-appearance: none;
+    /* För Safari/iOS */
+    -moz-appearance: none;
+    /* För Firefox */
+    appearance: none;
+    /* Standard */
+
+    border: 1px solid #ccc !important;
+    border-radius: 8px;
+
+}
+
+/* Säkerställer att även placeholder-texten (input-hinten) får 16px i alla webbläsare */
+#email::placeholder,
+#password::placeholder {
+    font-size: 16px !important;
+}
+
+/* Ökar textstorleken och gör texten fet på Logga in-knappen */
+#login-btn {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    /* Gör texten lite tydligare och mer distinkt */
+    cursor: pointer;
+
+    margin-top: 1rem;
+    width: 100%;
+    padding: 0.75rem;
+    border: none;
+    background-color: var(--color-primary);
+    color: var(--color-bg);
+    border-radius: 8px;
+}
+
+#login-btn:hover {
+    background-color: #1b53c3;
+    transition: ease-in 0.1s;
 }
 
 /* ========================================
