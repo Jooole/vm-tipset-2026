@@ -15,7 +15,7 @@ export function initNavigation() {
 
 // Central funktion som läser av URL-hashen och visar rätt sida
   function navigateFromHash() {
-    const currentHash = window.location.hash.replace("#", "") || "home"; // "home" är startsidan
+    const currentHash = window.location.hash.replace("#", "") || "hem"; // "home" är startsidan
 
     // Dölj alla sidor och avmarkera alla knappar
     pages.forEach(p => p.classList.remove("active"));
@@ -35,7 +35,7 @@ export function initNavigation() {
 
   // CTA-knappen uppdaterar också bara URL:en
   ctaButton?.addEventListener("click", () => {
-    window.location.hash = "betting";
+    window.location.hash = "mitt-tips";
   });
 
 //Öppna/stänga main menu på mobil
