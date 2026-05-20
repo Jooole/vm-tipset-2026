@@ -54,7 +54,7 @@ export const db = getFirestore(app);
  * =========================
  */
 
-export const LOCK_TIME = new Date("2026-06-08T00:00:01Z");
+export const LOCK_TIME = new Date("2026-06-07T23:59:00+02:00");
 
 export function isTipsLocked() {
   return Date.now() >= LOCK_TIME.getTime();
