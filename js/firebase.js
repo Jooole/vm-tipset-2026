@@ -106,15 +106,26 @@ export async function loadAllUsers() {
   }));
 }
 
-// Sparar eller uppdaterar deltagarens namn i databasen
+// Sparar eller uppdaterar deltagarens namn i databasen (Säkrad mot överskrivning)
 export async function saveUserProfile(user) {
   if (!user) return;
 
   try {
     const userRef = doc(db, "users", user.uid);
     
-    // Vi använder din hårdkodade namn-ordlista som en smart fallback 
-    // om Firebase Auth inte har hunnit sätta ett riktigt displayName än.
+    // 🌟 1. LÄS EXISTERANDE DATA FRÅN FLIKEN USERS I FIRESTORE FÖRST
+    const userSnap = await getDoc(userRef);
+    let nuvarandeNamnIDatabasen = null;
+
+    if (userSnap.exists()) {
+      nuvarandeNamnIDatabasen = userSnap.data().displayName;
+    }
+
+    // 🌟 2. BESTÄM NAMN UTIFRÅN PRIORITERINGSLISTAN
+    // Prio 1: Ett manuellt ändrat namn som redan finns i Firestore-databasen
+    // Prio 2: Det displayName som du har gett användaren i Firebase Authentication
+    // Prio 3: Din gamla hårdkodade reservlista
+    // Prio 4: Fallback till klippt e-postadress (matslindq)
     const namnOrdlista = {
       "NJEOKLuqUUNWjoDMvXrsMAlSFE12": "Joel",
       "v0ZTH8NitNMhEGWRLt35Kkfja4k2": "Staffan",
@@ -123,15 +134,16 @@ export async function saveUserProfile(user) {
       "txWfA35EIyRoLyAHpsZOU1VhtNs1": "Mats",
     };
 
-    const bestämNamn = user.displayName || namnOrdlista[user.uid] || user.email.split("@")[0];
+    const bestämNamn = nuvarandeNamnIDatabasen || user.displayName || namnOrdlista[user.uid] || user.email.split("@")[0];
 
+    // 🌟 3. SPARA DET UTVALDA NAMNET (Merge: true ser till att inga andra fält förstörs)
     await setDoc(userRef, {
       displayName: bestämNamn,
       email: user.email,
-      updatedAt: serverTimestamp() // Återanvänder din inbyggda Firebase-tidsstämpel
+      updatedAt: serverTimestamp()
     }, { merge: true });
 
-    console.log(`Användarprofil (${bestämNamn}) sparad i Firestore!`);
+    console.log(`Användarprofil (${bestämNamn}) kontrollerad/sparad i Firestore!`);
   } catch (error) {
     console.error("Kunde inte spara användarprofil till Firestore:", error);
   }
