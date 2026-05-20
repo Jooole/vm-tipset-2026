@@ -83,34 +83,68 @@ function autoSave() {
   const container = document.getElementById("match-list");
   if (!container) return;
 
+  // Filtrera ut alla gruppspelsmatcher precis som tidigare
   const groupMatches = matches.filter(m =>
     m.group?.startsWith("Grupp")
   );
 
-  container.innerHTML = groupMatches.map((match, index) => {
+  // 🌟 1. SORTERA OCH GRUPPERA MATCHERNA UTAN ATT ÄNDRA ORIGINAL-ARRAYEN
+  const groupedMatches = {};
+  
+  groupMatches.forEach((match, index) => {
+    const groupName = match.group || "Övriga grupper";
+    if (!groupedMatches[groupName]) {
+      groupedMatches[groupName] = [];
+    }
+    // Vi sparar matchen tillsammans med dess originalIndex så att matchId genereras identiskt!
+    groupedMatches[groupName].push({ match, originalIndex: index });
+  });
 
-    const homeTeam = match.homeTeam || "TBD";
-    const awayTeam = match.awayTeam || "TBD";
+  // Sortera gruppnamnen i bokstavsordning (Grupp A till Grupp L)
+  const sortedGroupNames = Object.keys(groupedMatches).sort();
 
-    const matchId = match.id || `${homeTeam}-${awayTeam}-${index}`;
+  // 🌟 2. BYGG HTML-STRÄNGEN MED GRUPPRUBRIKER
+  let htmlResult = "";
 
-    return `
-      <div class="match-card" data-id="${matchId}">
-
-        <span>${window.translateTeam(homeTeam)} - ${window.translateTeam(awayTeam)}</span>
-
-        <div class="score-inputs">
-          <input type="number" inputmode="numeric" min="0" class="home-score betting-input">
-          <div class="score-divider">-</div>
-          <input type="number" inputmode="numeric"min="0" class="away-score betting-input">
-        </div>
-
+  sortedGroupNames.forEach(groupName => {
+    // Skapa en snygg rubrik för varje grupp
+    htmlResult += `
+      <div class="betting-group-section" style="margin-top: 30px; margin-bottom: 15px;">
+        <h3 class="group-title" style="padding-bottom: 5px; border-bottom: 2px solid var(--color-border); margin-bottom: 15px; font-size: 1.25rem">
+          ${groupName}
+        </h3>
       </div>
     `;
-  }).join("");
 
-  bindMatchInputs(); // 👈 IMPORTANT: bind efter render
-  fillInputsFromState(); //Fyll UI med sparad data
+    // Loopa igenom matcherna som tillhör just denna grupp
+    groupedMatches[groupName].forEach(({ match, originalIndex }) => {
+      const homeTeam = match.homeTeam || "TBD";
+      const awayTeam = match.awayTeam || "TBD";
+
+      // 🌟 VIKTIGT: matchId behåller EXAKT samma logik och index som innan för att matcha din bindMatchInputs() och Firebase!
+      const matchId = match.id || `${homeTeam}-${awayTeam}-${originalIndex}`;
+
+      htmlResult += `
+        <div class="match-card" data-id="${matchId}">
+
+          <span>${window.translateTeam(homeTeam)} - ${window.translateTeam(awayTeam)}</span>
+
+          <div class="score-inputs">
+            <input type="number" inputmode="numeric" min="0" class="home-score betting-input">
+            <div class="score-divider">-</div>
+            <input type="number" inputmode="numeric" min="0" class="away-score betting-input">
+          </div>
+
+        </div>
+      `;
+    });
+  });
+
+  // Skriv ut all grupperad HTML i behållaren
+  container.innerHTML = htmlResult;
+
+  bindMatchInputs(); // 👈 Låter din befintliga lyssnare binda sig till alla inputs helt orört!
+  fillInputsFromState(); // Fyller i sparade resultat i rutorna helt orört!
 }
 
 /**
