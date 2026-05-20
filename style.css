@@ -219,6 +219,8 @@ nav {
 
 .page {
     display: none;
+    scroll-margin-top: 140px;
+    /* 👈 Ändra 80px till den höjd som din main-header har! */
 }
 
 .page.active {
