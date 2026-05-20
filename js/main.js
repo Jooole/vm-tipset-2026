@@ -434,7 +434,7 @@ initAuthListener(async (user) => {
               sheet.addRow({ match: "", tip: "", group: "" });
               sheet.addRow({ match: "⚽ GRUPPSPELSMATCHER", tip: "", group: "" });
 
-              // 🌟 1. MATCHA OCH SKRIV UT GRUPPSPELSMATCHERNA
+              // 🌟 1. MATCHA OCH SKRIV UT GRUPPSPELSMATCHERNA (SORTERADE EFTER GRUPP)
               if (window.matches && window.matches.length > 0) {
                 
                 // Filtrera ut gruppspelsmatcher (sorterar bort eventuella slutspelsmatcher)
@@ -442,8 +442,17 @@ initAuthListener(async (user) => {
                   return m.group && !m.group.toLowerCase().includes("slutspel");
                 });
 
-                // Sortera matcherna kronologiskt efter datum och tid
+                // 🌟 UPPDATERAD SORTERING: Sortera efter Grupp först (A-L), sedan efter Datum/Tid
                 gruppMatcher.sort((a, b) => {
+                  const gA = a.group || "";
+                  const gB = b.group || "";
+                  
+                  // Om grupperna är olika, sortera på gruppnamnet (t.ex. Grupp A före Grupp B)
+                  if (gA !== gB) {
+                    return gA.localeCompare(gB);
+                  }
+                  
+                  // Om grupperna är identiska, sortera kronologiskt efter datum och tid
                   const dateA = `${a.date || ""} T${a.time || ""}`;
                   const dateB = `${b.date || ""} T${b.time || ""}`;
                   return dateA.localeCompare(dateB);
@@ -464,8 +473,9 @@ initAuthListener(async (user) => {
                     }
                   }
 
+                  // Skriv ut raden i Excel (med lagnamnen översatta till svenska för snyggare presentation)
                   sheet.addRow({
-                    match: `${match.homeTeam || "Ej klart"} - ${match.awayTeam || "Ej klart"}`,
+                    match: `${window.translateTeam(match.homeTeam)} - ${window.translateTeam(match.awayTeam)}`,
                     tip: tippatResultat,
                     group: match.group || "Gruppspel"
                   });
