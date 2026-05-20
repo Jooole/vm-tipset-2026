@@ -81,7 +81,7 @@ window.teamTranslations = {
 "Portugal": "Portugal",
 "Qatar": "Qatar",
 "Saudi Arabia": "Saudiarabien",
-"Scotland": "Skotland",
+"Scotland": "Skottland",
 "Senegal": "Senegal",
 "South Africa": "Sydafrika",
 "Spain": "Spanien",
