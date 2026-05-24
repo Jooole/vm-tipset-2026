@@ -421,6 +421,7 @@ let spinnerTimeout = setTimeout(() => {
               sheet.columns = [
                 { key: 'match', width: 45 },
                 { key: 'tip', width: 25 },
+                { key: 'actual', width: 20 },
                 { key: 'group', width: 20 }
               ];
 
@@ -428,6 +429,7 @@ let spinnerTimeout = setTimeout(() => {
               sheet.addRow({
                 match: `Tippare: ${userIdentifier}`,
                 tip: userTipsData ? "TIPS INLÄMNAT" : "TOMT TIPS",
+                actual: "",
                 group: `Export: ${new Date().toLocaleDateString("sv-SE")}`
               });
 
@@ -435,6 +437,7 @@ let spinnerTimeout = setTimeout(() => {
               const headerRow = sheet.addRow({
                 match: 'Kategori / Match / Lag',
                 tip: 'Tippat Resultat / Info',
+                actual: 'Faktiskt resultat',
                 group: 'Grupp / Typ'
               });
 
@@ -483,10 +486,19 @@ let spinnerTimeout = setTimeout(() => {
                     }
                   }
 
+                  // 🔮 HÄMTA DET FAKTISKA RESULTATET (Exakt samma logik som i dina match-vyer)
+                  let faktisktResultat = "-";
+                  if (match.homeScore !== null && match.awayScore !== null) {
+                    faktisktResultat = `${match.homeScore} - ${match.awayScore}`;
+                } else if (match.status === "live") {
+                    faktisktResultat = `${match.homeScore ?? 0} - ${match.awayScore ?? 0} (LIVE)`;
+                }
+
                   // Skriv ut raden i Excel (med lagnamnen översatta till svenska för snyggare presentation)
                   sheet.addRow({
                     match: `${window.translateTeam(match.homeTeam)} - ${window.translateTeam(match.awayTeam)}`,
                     tip: tippatResultat,
+                    actual: faktisktResultat,
                     group: match.group || "Gruppspel"
                   });
                 });
@@ -517,6 +529,7 @@ let spinnerTimeout = setTimeout(() => {
                     sheet.addRow({
                       match: runda.key === 'winner' ? "Mästare" : `Lag ${i + 1}`,
                       tip: lagNamn,
+                      actual: "-",
                       group: "Slutspelsval"
                     });
                   });
@@ -524,6 +537,7 @@ let spinnerTimeout = setTimeout(() => {
                   sheet.addRow({
                     match: "Inga val gjorda",
                     tip: "-",
+                    actual: "-",
                     group: "Slutspelsval"
                   });
                 }
@@ -536,6 +550,7 @@ let spinnerTimeout = setTimeout(() => {
               sheet.addRow({
                 match: "Vem blir turneringens skyttekung?",
                 tip: userTipsData?.topScorer || "-",
+                actual: "-",
                 group: "Skyttekung"
               });
 
@@ -543,6 +558,7 @@ let spinnerTimeout = setTimeout(() => {
               const goalsRow = sheet.addRow({
                 match: "Hur många mål gör skytteligavinnaren totalt?",
                 tip: userTipsData?.goals !== undefined && userTipsData?.goals !== null ? userTipsData.goals : "-",
+                actual: "-",
                 group: "Antal mål"
               });
 
