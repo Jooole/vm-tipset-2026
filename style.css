@@ -227,6 +227,68 @@ nav {
     display: block;
 }
 
+/* ========================================
+   LOADING SPINNER
+======================================== */
+
+/* Container som centrerar spinnern på sidan under headern */
+.inline-spinner-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    /* Placerar spinnern absolut centrerat under din 75.2px header */
+    position: fixed;
+    top: 75.2px;
+    /* Din exakta header-höjd! */
+    left: 0;
+    width: 100%;
+    height: calc(100vh - 75.2px);
+    /* Tar upp resten av skärmen */
+
+    background-color: transparent;
+    /* Ingen overlay, ditt vanliga sid-content kan ligga under */
+    z-index: 999;
+    /* Ligger ovanför content men stör inte headern */
+    pointer-events: none;
+    /* Gör att man kan klicka "igenom" tomrummet om det behövs */
+}
+
+/* Själva snurr-cirkeln */
+.spinner {
+    width: 45px;
+    height: 45px;
+    border: 4px solid rgba(26, 37, 54, 0.1);
+    /* Ljus cirkel */
+    border-radius: 50%;
+    border-top-color: #facc15;
+    /* Din gula profilfärg */
+    animation: spin 1s linear infinite;
+    pointer-events: auto;
+    /* Gör själva spinnern klickbar (om man mot förmodan skulle vilja det) */
+}
+
+.inline-spinner-container p {
+    color: #1a2536;
+    /* Din mörkblå färg för texten så den syns på ljus bakgrund */
+    margin-top: 12px;
+    font-family: sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+/* Klass för att dölja spinnern helt */
+.inline-spinner-container.hidden {
+    display: none !important;
+}
+
+/* Snurr-animation */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
 
 /* ========================================
    HERO

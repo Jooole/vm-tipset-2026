@@ -304,6 +304,12 @@ initAuthListener(async (user) => {
     return;
   }
 
+  // ⏱️ STARTA TIMERN FÖR SPINNERN DIREKT
+const spinnerElement = document.getElementById("loading-spinner");
+let spinnerTimeout = setTimeout(() => {
+  if (spinnerElement) spinnerElement.classList.remove("hidden");
+}, 400);
+
   // Spara/uppdatera användaren i databasen automatiskt vid inloggning
   await saveUserProfile(user);
 
@@ -332,6 +338,10 @@ initAuthListener(async (user) => {
     }
 
     console.log("State ready och UI uppdaterat");
+
+    // 🛑 ALL DATA ÄR KLAR! AVBRYT TIMERN OCH GÖM SPINNERN HÄR
+    clearTimeout(spinnerTimeout);
+    if (spinnerElement) spinnerElement.classList.add("hidden");
 
     // 3. INITIERA ALLA FILTERS OCH NAVIGATION
     console.log("INITING MATCH FILTERS");
