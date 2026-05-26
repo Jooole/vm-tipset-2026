@@ -337,11 +337,46 @@ function initTopscorerAutocomplete(players) {
         item.innerText = playerName;
 
         // När man klickar på en spelare, välj den och spara till state
-        item.onclick = () => {
-          input.value = playerName;
-          results.classList.remove("show"); // Göm dropdownen efter val
-          updateState("topScorer", playerName); // Sparar valet till Firestore
-        };
+        // Variabler högre upp eller precis innan för att hålla koll på scroll
+let touchStartHeight = 0;
+let isScrolling = false;
+
+// ... inuti din loop där du skapar spelarraderna ...
+
+// 1. När fingret sätts ner, spara startpositionen
+item.ontouchstart = (e) => {
+  touchStartHeight = e.touches[0].clientY;
+  isScrolling = false;
+};
+
+// 2. Om fingret rör sig mer än 10 pixlar i höjdled, tolka det som en scroll!
+item.ontouchmove = (e) => {
+  const currentHeight = e.touches[0].clientY;
+  if (Math.abs(touchStartHeight - currentHeight) > 10) {
+    isScrolling = true; 
+  }
+};
+
+// 3. När fingret lyfts, välj bara spelaren om användaren INTE scrollade
+item.ontouchend = (e) => {
+  if (isScrolling) return; // Användaren scrollar bara, avbryt stängning!
+
+  e.preventDefault(); // Stoppa falska musklick
+  
+  input.value = playerName;
+  results.classList.remove("show"); // Göm dropdownen säkert
+  updateState("topScorer", playerName); // Sparar valet till Firestore
+};
+
+// 4. Fallback för vanliga datormöss (desktop) så att det fortfarande går att klicka där
+item.onmousedown = (e) => {
+  // Körs bara om det är en riktig mus (inte touch)
+  if (e.button === 0) { 
+    input.value = playerName;
+    results.classList.remove("show");
+    updateState("topScorer", playerName);
+  }
+};
 
         results.appendChild(item);
       });

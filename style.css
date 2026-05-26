@@ -1126,6 +1126,7 @@ body:has(#login-btn) main {
         max-height: 400px;
         opacity: 1;
         pointer-events: auto;
+        z-index: 1000;
     }
 
     .nav-btn {
