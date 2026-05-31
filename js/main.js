@@ -180,9 +180,11 @@ async function initMatches() {
             : "upcoming"
     }));
 
-    // cache fix
-    localStorage.setItem(CACHE_KEY, JSON.stringify(window.matches));
-    localStorage.setItem(CACHE_TIME_KEY, Date.now());
+    // SÄKERHETSSPÄRR: Spara BARA till cache om vi faktiskt fick matcher från API:et!
+    if (window.matches && window.matches.length > 0) {
+      localStorage.setItem(CACHE_KEY, JSON.stringify(window.matches));
+      localStorage.setItem(CACHE_TIME_KEY, Date.now());
+    }
 
     renderAllUI(window.matches);
 
