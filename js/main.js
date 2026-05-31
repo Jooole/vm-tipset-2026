@@ -43,59 +43,59 @@ window.userTips = {};
 // 🇸🇪 SVENSK ORDLISTA FÖR PRESENTATION I UI:T
 window.teamTranslations = {
   "Algeria": "Algeriet",
-"Argentina": "Argentina",
-"Australia": "Australien",
-"Austria": "Österrike",
-"Belgium": "Belgien",
-"Bosnia-Herzegovina": "Bosnien och Hercegovina",
-"Brazil": "Brasilien",
-"Canada": "Kanada",
-"Cabo Verde": "Kap Verde",
-"Colombia": "Colombia",
-"Congo DR": "Kongo-Kinshasa",
-"Côte d'Ivoire": "Elfenbenskusten",
-"Croatia": "Kroatien",
-"Curaçao": "Curaçao",
-"Czechia": "Tjeckien",
-"Denmark": "Danmark",
-"Ecuador": "Ecuador",
-"Egypt": "Egypten",
-"England": "England",
-"France": "Frankrike",
-"Germany": "Tyskland",
-"Ghana": "Ghana",
-"Haiti": "Haiti",
-"IR Iran": "Iran",
-"Iraq": "Irak",
-"Japan": "Japan",
-"Jordan": "Jordanien",
-"Korea Republic": "Sydkorea",
-"Mexico": "Mexiko",
-"Morocco": "Marocko",
-"Netherlands": "Nederländerna",
-"New Zealand": "Nya Zeeland",
-"Norway": "Norge",
-"Panama": "Panama",
-"Paraguay": "Paraguay",
-"Poland": "Polen",
-"Portugal": "Portugal",
-"Qatar": "Qatar",
-"Saudi Arabia": "Saudiarabien",
-"Scotland": "Skottland",
-"Senegal": "Senegal",
-"South Africa": "Sydafrika",
-"Spain": "Spanien",
-"Sweden": "Sverige",
-"Switzerland": "Schweiz",
-"Tunisia": "Tunisien",
-"Turkey": "Turkiet",
-"Uruguay": "Uruguay",
-"USA": "USA",
-"Uzbekistan": "Uzbekistan",
+  "Argentina": "Argentina",
+  "Australia": "Australien",
+  "Austria": "Österrike",
+  "Belgium": "Belgien",
+  "Bosnia-Herzegovina": "Bosnien och Hercegovina",
+  "Brazil": "Brasilien",
+  "Canada": "Kanada",
+  "Cabo Verde": "Kap Verde",
+  "Colombia": "Colombia",
+  "Congo DR": "Kongo-Kinshasa",
+  "Côte d'Ivoire": "Elfenbenskusten",
+  "Croatia": "Kroatien",
+  "Curaçao": "Curaçao",
+  "Czechia": "Tjeckien",
+  "Denmark": "Danmark",
+  "Ecuador": "Ecuador",
+  "Egypt": "Egypten",
+  "England": "England",
+  "France": "Frankrike",
+  "Germany": "Tyskland",
+  "Ghana": "Ghana",
+  "Haiti": "Haiti",
+  "IR Iran": "Iran",
+  "Iraq": "Irak",
+  "Japan": "Japan",
+  "Jordan": "Jordanien",
+  "Korea Republic": "Sydkorea",
+  "Mexico": "Mexiko",
+  "Morocco": "Marocko",
+  "Netherlands": "Nederländerna",
+  "New Zealand": "Nya Zeeland",
+  "Norway": "Norge",
+  "Panama": "Panama",
+  "Paraguay": "Paraguay",
+  "Poland": "Polen",
+  "Portugal": "Portugal",
+  "Qatar": "Qatar",
+  "Saudi Arabia": "Saudiarabien",
+  "Scotland": "Skottland",
+  "Senegal": "Senegal",
+  "South Africa": "Sydafrika",
+  "Spain": "Spanien",
+  "Sweden": "Sverige",
+  "Switzerland": "Schweiz",
+  "Tunisia": "Tunisien",
+  "Turkey": "Turkiet",
+  "Uruguay": "Uruguay",
+  "USA": "USA",
+  "Uzbekistan": "Uzbekistan",
 };
 
 // Funktion som returnerar svenskt namn om det finns, annars det engelska originalet
-window.translateTeam = function(englishName) {
+window.translateTeam = function (englishName) {
   if (!englishName) return "Ej klart";
   return window.teamTranslations[englishName.trim()] || englishName;
 };
@@ -138,9 +138,9 @@ async function initMatches() {
     // =========================
     if (cachedData && cacheAge !== null && cacheAge < CACHE_MAX_AGE) {
       window.matches = JSON.parse(cachedData);
-console.log("DEBUG matches before render:", window.matches);
-renderAllUI(window.matches);
-console.log("DEBUG after renderAllUI");      return;
+      console.log("DEBUG matches before render:", window.matches);
+      renderAllUI(window.matches);
+      console.log("DEBUG after renderAllUI"); return;
     }
 
     // =========================
@@ -176,8 +176,8 @@ console.log("DEBUG after renderAllUI");      return;
         match.status === "completed"
           ? "finished"
           : match.status === "live"
-          ? "live"
-          : "upcoming"
+            ? "live"
+            : "upcoming"
     }));
 
     // cache fix
@@ -208,7 +208,7 @@ function renderAllUI(matches) {
 
   // leaderboard måste köras EFTER all data finns
   renderLeaderboard();
-  
+
 }
 
 // =========================
@@ -238,7 +238,7 @@ async function renderLeaderboard(usersToUse, tipsToUse) {
   // Bygg leaderboard för ALLA användare
   const leaderboard = allUsers.map(user => {
     const tipsEntry = allTipsList.find(t => t.userId === user.userId);
-    
+
     // 🌟 FIXEN: Om användaren inte har några tips ännu, ge dem ett tomt objekt {} istället för att avbryta med null!
     const uTips = tipsEntry?.data || {};
 
@@ -305,10 +305,10 @@ initAuthListener(async (user) => {
   }
 
   // ⏱️ STARTA TIMERN FÖR SPINNERN DIREKT
-const spinnerElement = document.getElementById("loading-spinner");
-let spinnerTimeout = setTimeout(() => {
-  if (spinnerElement) spinnerElement.classList.remove("hidden");
-}, 400);
+  const spinnerElement = document.getElementById("loading-spinner");
+  let spinnerTimeout = setTimeout(() => {
+    if (spinnerElement) spinnerElement.classList.remove("hidden");
+  }, 400);
 
   // Spara/uppdatera användaren i databasen automatiskt vid inloggning
   await saveUserProfile(user);
@@ -322,10 +322,20 @@ let spinnerTimeout = setTimeout(() => {
 
     // 1. HÄMTA ANVÄNDARENS TIPS FRÅN FIREBASE FÖRST
     const savedTips = await loadTips(user.uid) || {};
-    
-    // Spara ner dina laddade tips till fönstret så att betting.js kommer åt dem!
-    window.userTips = savedTips; 
+
+    // Spara ner dina laddade tips till fönstret så att betting.js kommer åt them!
+    window.userTips = savedTips;
     window.allTips = await loadAllTips();
+
+    // STARTA BAKGRUNDS-SYNK: Fråga Firebase-servern i tysthet om det finns nyare data
+    Promise.all([loadActualResults(), loadAllTips(), loadAllUsers()]).then(([freshFacit, freshTips, freshUsers]) => {
+      if (freshFacit) setActualResults(freshFacit);
+      if (freshTips && freshTips.length > 0) window.allTips = freshTips;
+
+      // Tvinga leaderboarden att ritas om med de färskaste poängen från servern!
+      renderLeaderboard();
+      console.log("Leaderboard och facit har synkats live med servern!");
+    }).catch(err => console.log("Bakgrundssynk väntar på nätverk:", err));
 
     console.log("Firebase-data laddad och klar!");
 
@@ -355,23 +365,23 @@ let spinnerTimeout = setTimeout(() => {
 
     if (isAdmin) {
       console.log("Admin verifierad. Skapar backup-knapp i nav-menyn...");
-      
-      const navMenu = document.getElementById("main-nav"); 
-      
+
+      const navMenu = document.getElementById("main-nav");
+
       if (navMenu && !document.getElementById("admin-download-btn")) {
-        
+
         const adminBtn = document.createElement("button");
         adminBtn.id = "admin-download-btn";
         adminBtn.innerText = "📥 Ladda ner allas tips";
-        adminBtn.className = "nav-btn btn-admin"; 
-        
+        adminBtn.className = "nav-btn btn-admin";
+
         adminBtn.onclick = async () => {
           adminBtn.innerText = "⏳ Genererar Excel...";
           adminBtn.disabled = true;
 
           try {
             console.log("Admin startar backup: Hämtar data från Firebase...");
-            
+
             // Hämta både alla tips och alla användarprofiler (för att få riktiga namn)
             const [currentTips, allUsers] = await Promise.all([
               loadAllTips(),
@@ -394,10 +404,10 @@ let spinnerTimeout = setTimeout(() => {
             // Loopa igenom varje tips i databasen och skapa en egen flik per tippare
             currentTips.forEach((tipsEntry) => {
               const userTipsData = tipsEntry.data || null;
-              
+
               // 🌟 LIVE-UPPSLAG: Leta upp användaren i listan vi hämtade från Firebase!
               const matchandeAnvandare = allUsers.find(u => u.userId === tipsEntry.userId);
-              
+
               // Hämta displayName i första hand, fall tillbaka på UID om profilen saknas helt
               const userIdentifier = matchandeAnvandare?.data?.displayName || `Anvandare (${tipsEntry.userId ? tipsEntry.userId.substring(0, 5) : "Okand"})`;
 
@@ -449,7 +459,7 @@ let spinnerTimeout = setTimeout(() => {
 
               // 🌟 1. MATCHA OCH SKRIV UT GRUPPSPELSMATCHERNA (SORTERADE EFTER GRUPP)
               if (window.matches && window.matches.length > 0) {
-                
+
                 // Filtrera ut gruppspelsmatcher (sorterar bort eventuella slutspelsmatcher)
                 const gruppMatcher = window.matches.filter(m => {
                   return m.group && !m.group.toLowerCase().includes("slutspel");
@@ -459,12 +469,12 @@ let spinnerTimeout = setTimeout(() => {
                 gruppMatcher.sort((a, b) => {
                   const gA = a.group || "";
                   const gB = b.group || "";
-                  
+
                   // Om grupperna är olika, sortera på gruppnamnet (t.ex. Grupp A före Grupp B)
                   if (gA !== gB) {
                     return gA.localeCompare(gB);
                   }
-                  
+
                   // Om grupperna är identiska, sortera kronologiskt efter datum och tid
                   const dateA = `${a.date || ""} T${a.time || ""}`;
                   const dateB = `${b.date || ""} T${b.time || ""}`;
@@ -475,9 +485,9 @@ let spinnerTimeout = setTimeout(() => {
                   // Bakåtkompatibel ID-kontroll (stödjer både siffer-ID "2" och gamla text-ID "Mexico-South Africa-0")
                   const genereratTextId = `${match.homeTeam}-${match.awayTeam}-${mIdx}`;
                   const pappersTip = userTipsData?.matches?.[match.id] || userTipsData?.matches?.[genereratTextId];
-                  
+
                   let tippatResultat = "-";
-                  
+
                   if (pappersTip) {
                     const hScore = pappersTip.home;
                     const aScore = pappersTip.away;
@@ -490,9 +500,9 @@ let spinnerTimeout = setTimeout(() => {
                   let faktisktResultat = "-";
                   if (match.homeScore !== null && match.awayScore !== null) {
                     faktisktResultat = `${match.homeScore} - ${match.awayScore}`;
-                } else if (match.status === "live") {
+                  } else if (match.status === "live") {
                     faktisktResultat = `${match.homeScore ?? 0} - ${match.awayScore ?? 0} (LIVE)`;
-                }
+                  }
 
                   // Skriv ut raden i Excel (med lagnamnen översatta till svenska för snyggare presentation)
                   sheet.addRow({
@@ -517,7 +527,7 @@ let spinnerTimeout = setTimeout(() => {
               ];
 
               rundor.forEach(runda => {
-                sheet.addRow({ match: "", tip: "", group: "" }); 
+                sheet.addRow({ match: "", tip: "", group: "" });
                 sheet.addRow({ match: runda.namn, tip: "", group: "" });
 
                 const lagData = playoffData[runda.key] || [];
@@ -570,13 +580,13 @@ let spinnerTimeout = setTimeout(() => {
             const buffer = await workbook.xlsx.writeBuffer();
             const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
             const url = window.URL.createObjectURL(blob);
-            
+
             const a = document.createElement("a");
             a.href = url;
             a.download = `VM_2026_Alla_Tips_${new Date().toISOString().split("T")[0]}.xlsx`;
             document.body.appendChild(a);
             a.click();
-            
+
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
             console.log("Excel-nedladdning klar!");
@@ -597,7 +607,7 @@ let spinnerTimeout = setTimeout(() => {
   } catch (error) {
     console.error("Kunde inte starta appen korrekt:", error);
   }
-  
+
   // 4. REALTIME UPDATES
   listenToMatches(async (updates) => {
     console.log("Matches updated in realtime");
@@ -641,7 +651,7 @@ if (DEV_MODE) {
       const matchIdStr = String(m.id).toLowerCase();
       const lookupStr = String(matchIdentifier).toLowerCase();
       const combinedTeams = `${m.homeTeam}-${m.awayTeam}`.toLowerCase();
-      
+
       return matchIdStr === lookupStr || combinedTeams.includes(lookupStr) || m.homeTeam.toLowerCase().includes(lookupStr) || m.awayTeam.toLowerCase().includes(lookupStr);
     });
 
@@ -671,7 +681,7 @@ if (DEV_MODE) {
 
       const points = calculateUserPoints({
         userTips: uTips,
-        matches: simulatedMatches, 
+        matches: simulatedMatches,
         actualResults
       });
 

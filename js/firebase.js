@@ -15,7 +15,9 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import {
-  getFirestore,
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
   doc,
   setDoc,
   getDoc,
@@ -46,7 +48,13 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
-export const db = getFirestore(app);
+
+// Starta Firestore med lokal cache aktiverad för mobiler och flera flikar
+export const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager()
+  })
+});
 
 /**
  * =========================
@@ -112,7 +120,7 @@ export async function saveUserProfile(user) {
 
   try {
     const userRef = doc(db, "users", user.uid);
-    
+
     // 🌟 1. LÄS EXISTERANDE DATA FRÅN FLIKEN USERS I FIRESTORE FÖRST
     const userSnap = await getDoc(userRef);
     let nuvarandeNamnIDatabasen = null;
