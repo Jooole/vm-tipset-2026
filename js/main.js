@@ -235,7 +235,7 @@ async function renderLeaderboard(usersToUse, tipsToUse) {
   if (!tableBody) return;
 
   const allUsers = usersToUse || await loadAllUsers();
-  const allTipsList = tipsToUse || ((window.allTips && window.allTips.length > 0) ? window.allTips : await loadAllTips());
+  const allTipsList = tipsToUse || ((window.allTips && window.allTips.length > 0) ? window.allTips : []);
 
   // Bygg leaderboard för ALLA användare
   const leaderboard = allUsers.map(user => {
@@ -330,12 +330,20 @@ initAuthListener(async (user) => {
 
     // Spara ner dina laddade tips till fönstret så att betting.js kommer åt them!
     window.userTips = savedTips;
-    window.allTips = await loadAllTips();
+    // Spara ner dina laddade tips till fönstret så att betting.js kommer åt them!
+    window.userTips = savedTips;
 
+    // ✅ SÄKER FIX: Vi lägger loadAllTips i en egen try/catch. 
+    // Om Firebase nekar detta (vilket är rätt före 7 juni) så kraschar inte användarens eget tips!
+    try {
+      window.allTips = await loadAllTips();
+    } catch (leaderboardError) {
+      console.log("Hämtning av andras tips blockeras av säkerhetsreglerna fram till 7 juni. Helt normalt.");
+      window.allTips = []; // Sätt till en tom lista så länge
+    }
     // STARTA BAKGRUNDS-SYNK: Fråga Firebase-servern i tysthet om det finns nyare data
-    Promise.all([loadActualResults(), loadAllTips(), loadAllUsers()]).then(([freshFacit, freshTips, freshUsers]) => {
+    Promise.all([loadActualResults(), loadAllUsers()]).then(([freshFacit]) => {
       if (freshFacit) setActualResults(freshFacit);
-      if (freshTips && freshTips.length > 0) window.allTips = freshTips;
 
       // Tvinga leaderboarden att ritas om med de färskaste poängen från servern!
       renderLeaderboard();
