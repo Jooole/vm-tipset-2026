@@ -58,15 +58,15 @@ function getMatchPoints(prediction, result) {
     predictedDiff === 0
       ? "draw"
       : predictedDiff > 0
-      ? "home"
-      : "away";
+        ? "home"
+        : "away";
 
   const actualOutcome =
     actualDiff === 0
       ? "draw"
       : actualDiff > 0
-      ? "home"
-      : "away";
+        ? "home"
+        : "away";
 
   if (predictedOutcome === actualOutcome) {
     return POINTS.correctOutcome;
@@ -81,8 +81,32 @@ function getMatchPoints(prediction, result) {
  * =========================
  */
 function countCorrectTeams(predicted = {}, actual = []) {
+  // Skapa en spegellista för att göra om svenska namn till engelska (baserat på main.js)
+  const toEnglish = {
+    "Algeriet": "Algeria", "Argentina": "Argentina", "Australien": "Australia", "Österrike": "Austria",
+    "Belgien": "Belgium", "Bosnien och Hercegovina": "Bosnia-Herzegovina", "Brasilien": "Brazil",
+    "Kanada": "Canada", "Kap Verde": "Cabo Verde", "Colombia": "Colombia", "Kongo-Kinshasa": "Congo DR",
+    "Elfenbenskusten": "Côte d'Ivoire", "Kroatien": "Croatia", "Curaçao": "Curaçao", "Tjeckien": "Czechia",
+    "Danmark": "Denmark", "Ecuador": "Ecuador", "Egypten": "Egypten", "England": "England",
+    "Frankrike": "France", "Tyskland": "Germany", "Ghana": "Ghana", "Haiti": "Haiti", "Iran": "IR Iran",
+    "Irak": "Iraq", "Japan": "Japan", "Jordanien": "Jordanien", "Sydkorea": "Korea Republic",
+    "Mexiko": "Mexico", "Marocko": "Morocco", "Nederländerna": "Netherlands", "Nya Zeeland": "New Zealand",
+    "Norge": "Norway", "Panama": "Panama", "Paraguay": "Paraguay", "Polen": "Poland", "Portugal": "Portugal",
+    "Qatar": "Qatar", "Saudiarabien": "Saudi Arabia", "Skottland": "Scotland", "Senegal": "Senegal",
+    "Sydafrika": "South Africa", "Spanien": "Spain", "Sverige": "Sweden", "Schweiz": "Switzerland",
+    "Tunisien": "Tunisia", "Turkiet": "Turkey", "Uruguay": "Uruguay", "USA": "USA", "Uzbekistan": "Uzbekistan"
+  };
+
+  // Omvandla alla tippade lag till engelska, trimma mellanslag och gör till små bokstäver
+  const cleanActual = actual.map(team => String(team).trim().toLowerCase());
+
   return Object.values(predicted)
-    .filter(team => actual.includes(team))
+    .map(team => {
+      const svensktNamn = String(team).trim();
+      // Om namnet finns i vår svenska lista, ta det engelska namnet, annars behåll originalet
+      return (toEnglish[svensktNamn] || svensktNamn).toLowerCase();
+    })
+    .filter(englishTeam => cleanActual.includes(englishTeam))
     .length;
 }
 
@@ -175,8 +199,8 @@ export function calculateUserPoints({
    */
 
   if (
-    userTips.topScorer && 
-    actualResults.topScorer && 
+    userTips.topScorer &&
+    actualResults.topScorer &&
     userTips.topScorer.trim().toLowerCase() === actualResults.topScorer.trim().toLowerCase()
   ) {
     total += POINTS.topScorer;

@@ -16,7 +16,7 @@ import { initNavigation, initCountdown } from "./ui.js";
 import { initMatchFilters, renderMatches } from "./matches.js";
 import { ALLOWED_ADMINS, checkIsAdmin } from "./config.js";
 import { fetchMatches } from "./api.js";
-import { listenToMatches } from "./realtime.js";
+import { listenToMatches, listenToFacit } from "./realtime.js";
 import { getFlag } from "./flags.js";
 import { players } from "./players.js";
 
@@ -318,9 +318,12 @@ initAuthListener(async (user) => {
   console.log("Hämtar data från Firebase först...");
 
   try {
-    // Hämta facit från Firestore och tryck in det i results.js-systemet
-    const dbFacit = await loadActualResults();
-    setActualResults(dbFacit);
+    // Starta live-lyssnaren för facit direkt
+    listenToFacit((freshFacit) => {
+      console.log("Facit uppdaterades live från Firestore! Ritar om...");
+      setActualResults(freshFacit);
+      renderLeaderboard(); // Tvingar leaderboarden att räkna om och rita om live!
+    });
 
     // 1. HÄMTA ANVÄNDARENS TIPS FRÅN FIREBASE FÖRST
     const savedTips = await loadTips(user.uid) || {};

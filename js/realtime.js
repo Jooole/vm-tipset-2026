@@ -48,3 +48,19 @@ export function listenToMatches(callback) {
     callback(matches);
   });
 }
+
+// REALTIDSLYSSNARE FÖR FACIT/SLUTSPEL
+import { doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+export function listenToFacit(callback) {
+  const facitRef = doc(db, "admin", "facit");
+
+  return onSnapshot(facitRef, (snapshot) => {
+    if (snapshot.exists()) {
+      const freshFacitData = snapshot.data();
+      callback(freshFacitData);
+    }
+  }, (error) => {
+    console.error("Fel vid live-lyssning på facit:", error);
+  });
+}
