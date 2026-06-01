@@ -251,6 +251,20 @@ export async function loadActualResults() {
 
 /**
  * =========================
+ * FIRESTORE: AUTH / UTLoggning
+ * =========================
+ */
+export async function logoutUser() {
+  try {
+    await signOut(auth);
+  } catch (error) {
+    console.error("Kunde inte logga ut användaren:", error);
+    throw error;
+  }
+}
+
+/**
+ * =========================
  * DEBUG
  * =========================
  */

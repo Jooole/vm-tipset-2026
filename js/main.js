@@ -9,7 +9,7 @@ console.log("App started");
 // =========================
 // IMPORTS
 // =========================
-import { initAuthListener, isTipsLocked, loadTips, loadAllTips, loadActualResults, loadAllUsers, saveUserProfile, saveTips } from "./firebase.js";
+import { initAuthListener, isTipsLocked, loadTips, loadAllTips, loadActualResults, loadAllUsers, saveUserProfile, saveTips, logoutUser } from "./firebase.js";
 import { calculateUserPoints, setActualResults, actualResults } from "./results.js";
 import { renderBettingMatches, renderAllPlayoffRounds, setAllTeams, initTopscorerAutocomplete, hydrateBettingUI, fillInputsFromState } from "./betting.js";
 import { initNavigation, initCountdown } from "./ui.js";
@@ -617,9 +617,41 @@ initAuthListener(async (user) => {
       }
     }
 
+    // 🚪 UTLOGGNINGS-KNAPP (Säker och isolerad)
+    // 🚪 UTLOGGNINGS-KNAPP (Centrerad och klar)
+    const navMenu = document.getElementById("main-nav");
+
+    if (navMenu && !document.getElementById("logout-nav-item")) {
+      const logoutLi = document.createElement("li");
+      logoutLi.id = "logout-nav-item";
+
+      // Vi lägger till "display: inline-flex; justify-content: center;" för att centrera allt
+      logoutLi.innerHTML = `
+        <button class="nav-btn logout-btn">
+          Logga ut
+        </button>
+      `;
+
+      logoutLi.querySelector("button").onclick = async (e) => {
+        e.preventDefault();
+
+        if (confirm("Vill du verkligen logga ut från VM-tips?")) {
+          try {
+            await logoutUser(); // Rensar din Firebase-session
+            window.location.href = "login.html"; // Skickar dig till login-sidan
+          } catch (err) {
+            alert("Kunde inte logga ut: " + err.message);
+          }
+        }
+      };
+
+      navMenu.appendChild(logoutLi);
+    }
+
   } catch (error) {
     console.error("Kunde inte starta appen korrekt:", error);
   }
+
 
   // 4. REALTIME UPDATES
   listenToMatches(async (updates) => {

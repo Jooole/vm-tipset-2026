@@ -1048,6 +1048,24 @@ body:has(#login-btn) main {
 }
 
 /* ========================================
+   LOGOUT BUTTON (Anpassad för headern)
+======================================== */
+.logout-btn {
+    color: var(--color-danger) !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    /* Detta centrerar texten och emojin perfekt */
+    gap: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#logout-nav-item {
+    list-style: none !important;
+}
+
+/* ========================================
    SMALL SCREENS
 ======================================== */
 
