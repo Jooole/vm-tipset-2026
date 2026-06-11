@@ -570,17 +570,25 @@ initAuthListener(async (user) => {
               sheet.addRow({ match: "", tip: "", group: "" });
               sheet.addRow({ match: "🌟 EXTRA-FRÅGOR", tip: "", group: "" });
 
+              // Felsäker hämtning av skyttekungen från alla möjliga databasnivåer
+              const skyttekungTips = userTipsData?.topScorer || tipsEntry?.topScorer || tipsEntry?.data?.topScorer || "-";
+
               sheet.addRow({
                 match: "Vem blir turneringens skyttekung?",
-                tip: userTipsData?.topScorer || "-",
+                tip: skyttekungTips,
                 actual: "-",
                 group: "Skyttekung"
               });
 
-              // Skapa raden för antal mål och spara en referens till den
+              // Felsäker hämtning av antal mål från alla möjliga databasnivåer
+              const antalMalTips = userTipsData?.goals !== undefined && userTipsData?.goals !== null ? userTipsData.goals :
+                (tipsEntry?.goals !== undefined && tipsEntry?.goals !== null ? tipsEntry.goals :
+                  (tipsEntry?.data?.goals !== undefined && tipsEntry?.data?.goals !== null ? tipsEntry.data.goals : "-"));
+
+              // Skapa raden för antal mål och spara en referens till den (behåller din exakta originalstruktur)
               const goalsRow = sheet.addRow({
                 match: "Hur många mål gör skytteligavinnaren totalt?",
-                tip: userTipsData?.goals !== undefined && userTipsData?.goals !== null ? userTipsData.goals : "-",
+                tip: antalMalTips,
                 actual: "-",
                 group: "Antal mål"
               });
