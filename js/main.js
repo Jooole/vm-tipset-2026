@@ -370,7 +370,6 @@ initAuthListener(async (user) => {
     console.log("INITING MATCH FILTERS");
     initMatchFilters();
     initNavigation();
-    initCountdown();
     lockBettingUI();
 
     // 🌟 ADMIN-KONTROLL: KOMPLETT & ISOLERAD EXCEL-EXPORT

@@ -48,31 +48,32 @@
 
     <main>
 
-        <!-- HEM -->
-        <section id="hem" class="page">
+        <section id="hem" class="page active">
 
             <div class="hero">
-                <h3>VM börjar om</h3>
-                <div id="countdown">00 dagar 00 timmar 00 minuter</div>
-
-                <p>
-                    Dags att ta reda på vem som har bäst koll på fotboll (eller mest tur).
-                    Insatsen är 100 kr och fina priser väntar vinnaren!
+                <h3>VM 2026</h3>
+                <p style="color: #222; font-size: 1.1rem; margin: 1rem 0 1.5rem 0;">
+                    VM är igång! Håll koll på vad du tippat och kolla hur du ligger till jämfört med dina motspelare.
                 </p>
 
-                <button id="cta-btn">
-                    Börja tippa!
-                </button>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <button class="nav-btn" data-page="mitt-tips"
+                        style="background-color: #2563eb; color: white; padding: 0.75rem 1.25rem; font-weight: 600; border: none; border-radius: 6px; cursor: pointer;">
+                        Mitt tips
+                    </button>
+                    <button class="nav-btn" data-page="resultat"
+                        style="background-color: #10b981; color: white; padding: 0.75rem 1.25rem; font-weight: 600; border: none; border-radius: 6px; cursor: pointer;">
+                        Resultat
+                    </button>
+                </div>
             </div>
 
             <div class="rules-box">
-
                 <div class="rules-header">
                     <h3>Poängregler</h3>
                 </div>
 
                 <div class="rules-grid">
-
                     <div class="rule-card">
                         <div class="rule-points">4p</div>
                         <div>
@@ -136,13 +137,11 @@
                             <p>Rätt antal mål av skyttekungen.</p>
                         </div>
                     </div>
-
                 </div>
 
                 <div class="rules-footer">
                     Max 4 poäng per gruppspelsmatch.
                 </div>
-
             </div>
 
             <div class="rules-box">
@@ -152,7 +151,6 @@
                             <div class="emoji-trophy">🏆</div>
                         </div>
                         <h3>Priser</h3>
-
                     </div>
                     <div class="table-wrapper">
                         <table class="prize-table">
@@ -162,18 +160,15 @@
                                     <th>Pris</th>
                                 </tr>
                             </thead>
-
                             <tbody>
                                 <tr>
                                     <td><span class="medal">🥇</span> 1:a</td>
                                     <td>50% av prispotten</td>
                                 </tr>
-
                                 <tr>
                                     <td><span class="medal">🥈</span> 2:a</td>
                                     <td>30% av prispotten</td>
                                 </tr>
-
                                 <tr>
                                     <td><span class="medal">🥉</span> 3:a</td>
                                     <td>20% av prispotten</td>
@@ -197,9 +192,11 @@
                 <div class="info-content">
                     <h4>Så fungerar tippningen</h4>
                     <p>
-                        Tippa resultat i gruppspelsmatcherna, vilka lag som går till slutspelet, och välj vem du tror
+                        Tippa resultat i gruppspelsmatcherna, vilka lag som går till slutspelet, och välj vem du
+                        tror
                         vinner skytteligan och hur många mål den spelaren gör.
-                        Ditt tips sparas automatiskt allteftersom du fyller i formuläret och blir låst kl 23:59 den 7e
+                        Ditt tips sparas automatiskt allteftersom du fyller i formuläret och blir låst kl 23:59 den
+                        7e
                         juni!
                     </p>
                 </div>
