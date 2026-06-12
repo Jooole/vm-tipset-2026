@@ -116,8 +116,8 @@ function applyMatchUpdates(baseMatches, updates) {
 // =========================
 // INIT MATCHES
 // =========================
-async function initMatches() {
-  if (hasLoadedMatches) return;
+async function initMatches(bypassCheck = false) {
+  if (hasLoadedMatches && !bypassCheck) return;
   hasLoadedMatches = true;
 
   const CACHE_KEY = "matches_cache";
@@ -679,6 +679,79 @@ initAuthListener(async (user) => {
     renderMatches(window.matches);
     renderBettingMatches(window.matches);
   });
+
+  // =========================================================================
+  // SMART HÄNDELSESTYRD LIVE-MOTOR (Optimerad för 10-minutersintervall)
+  // =========================================================================
+  if (!liveUpdateInterval) {
+    console.log("STARTING LIVE MOTOR (10 MIN LIVE INTERVAL)");
+
+    async function runSmartLiveCheck() {
+      const now = new Date();
+      let hasLiveMatch = false;
+      let nextMatchStart = null;
+
+      // 1. ANALYSERA SPELSCHEMAT
+      window.matches.forEach(match => {
+        if (match.status === "live" || match.status === "in_play") {
+          hasLiveMatch = true;
+        }
+
+        if (match.date) {
+          const matchStart = new Date(match.date);
+          if (matchStart > now) {
+            if (!nextMatchStart || matchStart < nextMatchStart) {
+              nextMatchStart = matchStart;
+            }
+          } else if (match.status !== "finished") {
+            hasLiveMatch = true;
+          }
+        }
+      });
+
+      // 2. HANTERA UTIFRÅN CURRENT STATE
+      let nextCheckDelay = 15 * 60 * 1000; // Standard fallback: 15 minuter
+
+      if (hasLiveMatch) {
+        // SCENARIO A: Match spelas! Uppdaterar UI och hämtar från API var 10:e minut
+        console.log("⚽ Match pågår live! Hämtar nya mål var 10:e minut.");
+
+        try {
+          localStorage.removeItem("matches_cache");
+          localStorage.removeItem("matches_cache_time");
+          await initMatches(true);
+          if (window.matches && window.matches.length > 0) {
+            renderMatches(window.matches);
+          }
+        } catch (err) {
+          console.error("Live-update failed during match:", err);
+        }
+
+        nextCheckDelay = 10 * 60 * 1000; // 🌟 10 minuter till nästa koll
+
+      } else if (nextMatchStart) {
+        // SCENARIO B: Sömnläge mellan matcher
+        const msUntilNextMatch = nextMatchStart.getTime() - now.getTime();
+        const buffer = 2 * 60 * 1000; // Vakna 2 min innan start
+        nextCheckDelay = msUntilNextMatch - buffer;
+
+        if (nextCheckDelay > 4 * 60 * 60 * 1000) {
+          nextCheckDelay = 4 * 60 * 60 * 1000; // Max djupsömn: 4 timmar
+        }
+
+        if (nextCheckDelay < 10000) {
+          nextCheckDelay = 30000;
+        }
+
+        console.log(`🚫 Ingen match live. Sömnläge i ${Math.round(nextCheckDelay / 1000 / 60)} minuter.`);
+      }
+
+      // 3. STARTA NÄSTA SMARTA TIMEOUT
+      liveUpdateInterval = setTimeout(runSmartLiveCheck, nextCheckDelay);
+    }
+
+    runSmartLiveCheck();
+  }
 
 }); // Stänger initAuthListener
 
