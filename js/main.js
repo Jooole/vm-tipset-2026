@@ -279,7 +279,7 @@ async function renderLeaderboard(usersToUse, tipsToUse) {
   // Rita ut i HTML
   tableBody.innerHTML = leaderboard.map((user, index) => {
     // 🌟 1. BERÄKNA TREND: Hitta användarens förra placering i minnet
-    let trendEmoji = "●";
+    let trendEmoji = "➔";
     let trendClass = "stable";
 
     // Om vi har en sparad historik sedan tidigare, räkna ut skillnaden
