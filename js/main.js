@@ -150,6 +150,16 @@ async function initMatches(bypassCheck = false) {
 
     const apiMatches = await fetchMatches();
 
+    // 🌟 SÄKERHETSSPÄRR: Om API:et skickar ett felmeddelande istället för matcher, krascha inte hela appen!
+    if (!Array.isArray(apiMatches)) {
+      console.error("API returnerade ingen array. Rensar cachen...", apiMatches);
+      localStorage.removeItem(CACHE_KEY);
+      localStorage.removeItem(CACHE_TIME_KEY);
+      window.matches = [];
+      renderAllUI([]);
+      return;
+    }
+
     window.matches = apiMatches.map(match => ({
       id: match.id,
 
@@ -231,6 +241,7 @@ function getAllTeamsFromMatches(matches) {
 // LEADERBOARD
 // =========================
 async function renderLeaderboard(usersToUse, tipsToUse) {
+  window.renderLeaderboard = renderLeaderboard;
   const tableBody = document.getElementById("leaderboard-body");
   if (!tableBody) return;
 
@@ -265,20 +276,40 @@ async function renderLeaderboard(usersToUse, tipsToUse) {
     return a.name.localeCompare(b.name);
   });
 
-  // Spara undan i globalt state för trendberäkning
-  previousLeaderboard = [...leaderboard];
-
   // Rita ut i HTML
   tableBody.innerHTML = leaderboard.map((user, index) => {
+    // 🌟 1. BERÄKNA TREND: Hitta användarens förra placering i minnet
+    let trendEmoji = "●";
+    let trendClass = "stable";
+
+    // Om vi har en sparad historik sedan tidigare, räkna ut skillnaden
+    if (previousLeaderboard && previousLeaderboard.length > 0) {
+      const prevIndex = previousLeaderboard.findIndex(p => p.userId === user.userId);
+
+      if (prevIndex !== -1) {
+        // OBS! Ett lägre index betyder en bättre placering (t.ex. index 0 är 1:a plats)
+        if (index < prevIndex) {
+          trendEmoji = "⬆";
+          trendClass = "up";
+        } else if (index > prevIndex) {
+          trendEmoji = "⬇";
+          trendClass = "down";
+        }
+      }
+    }
+
     return `
       <tr>
         <td class="rank-column">${index + 1}</td>
         <td>${user.name}</td>
         <td class="points-column">${user.points}</td>
-        <td class="trend-column">➡️</td>
+        <td class="trend-column rank-change ${trendClass}">${trendEmoji}</td>
       </tr>
     `;
   }).join("");
+
+  // 🌟 2. SPARA UNDAN AKTELL PLACERING TILL NÄSTA LIVE-UPPDATERING
+  previousLeaderboard = [...leaderboard];
 }
 
 // =========================

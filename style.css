@@ -980,20 +980,6 @@ td {
     width: 80px;
 }
 
-.rank-change.up {
-    color: green;
-    font-weight: 600;
-}
-
-.rank-change.down {
-    color: red;
-    font-weight: 600;
-}
-
-.rank-change.stable {
-    color: #888;
-}
-
 /* ========================================
    LOGIN-SIDA
 ======================================== */
@@ -1103,6 +1089,24 @@ body:has(#login-btn) main {
 .main-footer a:hover {
     color: #ffffff;
     text-decoration: underline;
+}
+
+.rank-change.up {
+    color: #10b981 !important;
+    /* Grön */
+    font-weight: 700;
+}
+
+.rank-change.down {
+    color: #dc2626 !important;
+    /* Röd */
+    font-weight: 700;
+}
+
+.rank-change.stable {
+    color: #94a3b8 !important;
+    /* Grå */
+    font-weight: 400;
 }
 
 /* ========================================
