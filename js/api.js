@@ -9,6 +9,9 @@
  */
 
 
+import { db } from "./firebase.js";
+import { doc, setDoc, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
 //Mock-data för att testa utan API
 const USE_MOCK = false; //ändra till false för att sluta använda mock-data
 const MOCK_MATCHES = [
@@ -37,134 +40,134 @@ const MOCK_MATCHES = [
     status: "scheduled"
   },
   {
-  kickoff_utc: "2026-06-13T16:00:00.000Z",
-  group_name: "C",
-  home_team: "Brazil",
-  away_team: "Germany",
-  home_team_code: "BRA",
-  away_team_code: "GER",
-  home_score: null,
-  away_score: null,
-  stadium: "SoFi Stadium",
-  status: "scheduled"
-},
+    kickoff_utc: "2026-06-13T16:00:00.000Z",
+    group_name: "C",
+    home_team: "Brazil",
+    away_team: "Germany",
+    home_team_code: "BRA",
+    away_team_code: "GER",
+    home_score: null,
+    away_score: null,
+    stadium: "SoFi Stadium",
+    status: "scheduled"
+  },
 
-{
-  kickoff_utc: "2026-06-13T19:00:00.000Z",
-  group_name: "C",
-  home_team: "Argentina",
-  away_team: "France",
-  home_team_code: "ARG",
-  away_team_code: "FRA",
-  home_score: null,
-  away_score: null,
-  stadium: "AT&T Stadium",
-  status: "scheduled"
-},
+  {
+    kickoff_utc: "2026-06-13T19:00:00.000Z",
+    group_name: "C",
+    home_team: "Argentina",
+    away_team: "France",
+    home_team_code: "ARG",
+    away_team_code: "FRA",
+    home_score: null,
+    away_score: null,
+    stadium: "AT&T Stadium",
+    status: "scheduled"
+  },
 
-{
-  kickoff_utc: "2026-06-14T16:00:00.000Z",
-  group_name: "D",
-  home_team: "Spain",
-  away_team: "Italy",
-  home_team_code: "ESP",
-  away_team_code: "ITA",
-  home_score: null,
-  away_score: null,
-  stadium: "Levi's Stadium",
-  status: "scheduled"
-},
+  {
+    kickoff_utc: "2026-06-14T16:00:00.000Z",
+    group_name: "D",
+    home_team: "Spain",
+    away_team: "Italy",
+    home_team_code: "ESP",
+    away_team_code: "ITA",
+    home_score: null,
+    away_score: null,
+    stadium: "Levi's Stadium",
+    status: "scheduled"
+  },
 
-{
-  kickoff_utc: "2026-06-14T19:00:00.000Z",
-  group_name: "D",
-  home_team: "England",
-  away_team: "Netherlands",
-  home_team_code: "ENG",
-  away_team_code: "NED",
-  home_score: null,
-  away_score: null,
-  stadium: "Mercedes-Benz Stadium",
-  status: "scheduled"
-},
+  {
+    kickoff_utc: "2026-06-14T19:00:00.000Z",
+    group_name: "D",
+    home_team: "England",
+    away_team: "Netherlands",
+    home_team_code: "ENG",
+    away_team_code: "NED",
+    home_score: null,
+    away_score: null,
+    stadium: "Mercedes-Benz Stadium",
+    status: "scheduled"
+  },
 
-{
-  kickoff_utc: "2026-06-15T16:00:00.000Z",
-  group_name: "E",
-  home_team: "Portugal",
-  away_team: "Belgium",
-  home_team_code: "POR",
-  away_team_code: "BEL",
-  home_score: null,
-  away_score: null,
-  stadium: "BC Place",
-  status: "scheduled"
-},
+  {
+    kickoff_utc: "2026-06-15T16:00:00.000Z",
+    group_name: "E",
+    home_team: "Portugal",
+    away_team: "Belgium",
+    home_team_code: "POR",
+    away_team_code: "BEL",
+    home_score: null,
+    away_score: null,
+    stadium: "BC Place",
+    status: "scheduled"
+  },
 
-{
-  kickoff_utc: "2026-06-15T19:00:00.000Z",
-  group_name: "E",
-  home_team: "Croatia",
-  away_team: "Switzerland",
-  home_team_code: "CRO",
-  away_team_code: "SUI",
-  home_score: null,
-  away_score: null,
-  stadium: "NRG Stadium",
-  status: "scheduled"
-},
+  {
+    kickoff_utc: "2026-06-15T19:00:00.000Z",
+    group_name: "E",
+    home_team: "Croatia",
+    away_team: "Switzerland",
+    home_team_code: "CRO",
+    away_team_code: "SUI",
+    home_score: null,
+    away_score: null,
+    stadium: "NRG Stadium",
+    status: "scheduled"
+  },
 
-{
-  kickoff_utc: "2026-06-16T16:00:00.000Z",
-  group_name: "F",
-  home_team: "Sweden",
-  away_team: "Norway",
-  home_team_code: "SWE",
-  away_team_code: "NOR",
-  home_score: null,
-  away_score: null,
-  stadium: "Lumen Field",
-  status: "scheduled"
-},
+  {
+    kickoff_utc: "2026-06-16T16:00:00.000Z",
+    group_name: "F",
+    home_team: "Sweden",
+    away_team: "Norway",
+    home_team_code: "SWE",
+    away_team_code: "NOR",
+    home_score: null,
+    away_score: null,
+    stadium: "Lumen Field",
+    status: "scheduled"
+  },
 
-{
-  kickoff_utc: "2026-06-16T19:00:00.000Z",
-  group_name: "F",
-  home_team: "Denmark",
-  away_team: "Finland",
-  home_team_code: "DEN",
-  away_team_code: "FIN",
-  home_score: null,
-  away_score: null,
-  stadium: "Gillette Stadium",
-  status: "scheduled"
-},
+  {
+    kickoff_utc: "2026-06-16T19:00:00.000Z",
+    group_name: "F",
+    home_team: "Denmark",
+    away_team: "Finland",
+    home_team_code: "DEN",
+    away_team_code: "FIN",
+    home_score: null,
+    away_score: null,
+    stadium: "Gillette Stadium",
+    status: "scheduled"
+  },
 
-{
-  kickoff_utc: "2026-06-17T16:00:00.000Z",
-  group_name: "G",
-  home_team: "South Korea",
-  away_team: "Australia",
-  home_team_code: "KOR",
-  away_team_code: "AUS",
-  home_score: null,
-  away_score: null,
-  stadium: "Arrowhead Stadium",
-  status: "scheduled"
-},
+  {
+    kickoff_utc: "2026-06-17T16:00:00.000Z",
+    group_name: "G",
+    home_team: "South Korea",
+    away_team: "Australia",
+    home_team_code: "KOR",
+    away_team_code: "AUS",
+    home_score: null,
+    away_score: null,
+    stadium: "Arrowhead Stadium",
+    status: "scheduled"
+  },
 
-{
-  kickoff_utc: "2026-06-17T19:00:00.000Z",
-  group_name: "G",
-  home_team: "Canada",
-  away_team: "Morocco",
-  home_team_code: "CAN",
-  away_team_code: "MAR",
-  home_score: null,
-  away_score: null,
-  stadium: "Hard Rock Stadium",
-  status: "scheduled"
-}
+  {
+    kickoff_utc: "2026-06-17T19:00:00.000Z",
+    group_name: "G",
+    home_team: "Canada",
+    away_team: "Morocco",
+    home_team_code: "CAN",
+    away_team_code: "MAR",
+    home_score: null,
+    away_score: null,
+    stadium: "Hard Rock Stadium",
+    status: "scheduled"
+  }
 ];
 
 const API_KEY = "wc26_JDF2xbAz8PGoYi7PYMRFfS";
@@ -177,6 +180,18 @@ export async function fetchMatches() {
   }
 
   try {
+    // 🌟 DIN EGNA EFFEKTIVA API-DASHBOARD:
+    // Detta skapar eller uppdaterar ett dokument i Firestore ("admin/api_stats")
+    // och ökar räknaren med +1 i ett dolt bakgrundsanrop.
+    const dagensDatum = new Date().toISOString().split("T")[0]; // Ger t.ex. "2026-06-14"
+
+    // Vi kör denna utan "await" så att användaren slipper vänta på att räknaren ska sparas
+    setDoc(doc(db, "admin", "api_stats"), {
+      [dagensDatum]: increment(1),
+      totalAntalAnrop: increment(1),
+      senasteAnrop: serverTimestamp()
+    }, { merge: true }).catch(err => console.warn("Kunde inte logga API-statistik:", err));
+
     const response = await fetch(API_URL, {
       headers: {
         Authorization: `Bearer ${API_KEY}`
