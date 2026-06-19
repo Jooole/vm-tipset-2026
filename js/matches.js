@@ -13,42 +13,30 @@
 let todaysMatchesOnly = false; // Håller koll på om vi BARA ska visa dagens matcher (sant/falskt)
 let activeGroup = "Alla grupper"; // Håller koll på vilken grupp som användaren valt att titta på
 
-//Funktion som ritar ut listan med matcher på skärmen baserat på den data den får in
-export function renderMatches(data) {
+// Funktion som ritar ut listan med matcher på skärmen samt användarens egna tips
+export function renderMatches(data, userTips = window.userTips || {}) {
 
   // SÄKERHETSVENTIL: Kontrollerar att datan som skickas in faktiskt är en lista (Array).
-  // Om det inte är en lista avbryts funktionen direkt för att appen inte ska krascha.
   if (!Array.isArray(data)) {
     console.warn("renderMatches blocked invalid data:", data);
     return;
   }
 
-  // Dubbel säkerhetskontroll (gör samma sak som ovan)
-  if (!Array.isArray(data)) {
-    console.warn("renderMatches blocked invalid data:", data);
-    return;
-  }
-
-  // Hämtar HTML-behållaren från index.html där matcherna ska ligga
   const matchesList = document.getElementById("matches-list");
-  
-  // Om behållaren inte finns i HTML-koden så avslutar vi direkt
   if (!matchesList) return;
 
   // Loopar igenom alla matcher i listan och förvandlar varje match-objekt till HTML-kod
   const html = data.map(match => {
 
-// Om matchens grupp är "Slutspel" OCH lagnamnet är tomt eller strängen "null", så hämtar vi vår snygga text istället!
-const isPlayoff = match.group === "Slutspel";
+    const isPlayoff = match.group === "Slutspel";
 
-// HÄR FÄRGAS NAMNEN SVENSKA: Vi översätter bara om det är ett riktigt lagnamn från API:et!
-const homeTeam = isPlayoff && (!match.homeTeam || match.homeTeam === "null") 
-  ? hamtaSlutspelsPlaceholder(match.id, "home") 
-  : window.translateTeam(match.homeTeam || "Ännu inte avgjort");
+    const homeTeam = isPlayoff && (!match.homeTeam || match.homeTeam === "null")
+      ? hamtaSlutspelsPlaceholder(match.id, "home")
+      : window.translateTeam(match.homeTeam || "Ännu inte avgjort");
 
-const awayTeam = isPlayoff && (!match.awayTeam || match.awayTeam === "null") 
-  ? hamtaSlutspelsPlaceholder(match.id, "away") 
-  : window.translateTeam(match.awayTeam || "Ännu inte avgjort");
+    const awayTeam = isPlayoff && (!match.awayTeam || match.awayTeam === "null")
+      ? hamtaSlutspelsPlaceholder(match.id, "away")
+      : window.translateTeam(match.awayTeam || "Ännu inte avgjort");
 
     // Kontrollerar om mål-fälten är tomma (null eller undefined)
     const homeEmpty = match.homeScore == null;
@@ -56,12 +44,10 @@ const awayTeam = isPlayoff && (!match.awayTeam || match.awayTeam === "null")
 
     // Bestäm vad som ska visas i mitten baserat på om matchen har ett resultat eller inte
     let centerDisplayHTML = "";
-    
+
     if (homeEmpty || awayEmpty) {
-      // Om resultatet saknas -> Visa bara ett snyggt VS
       centerDisplayHTML = `<div class="vs-text">VS</div>`;
     } else {
-      // Om resultatet finns -> Visa de gröna boxarna och kolonet precis som förut
       centerDisplayHTML = `
         <div class="score-box">
           ${match.homeScore}
@@ -71,6 +57,25 @@ const awayTeam = isPlayoff && (!match.awayTeam || match.awayTeam === "null")
           ${match.awayScore}
         </div>
       `;
+    }
+
+    // 🌟 NYTT: HÄMTA ANVÄNDARENS PERSONLIGA TIPS FÖR DENNA MATCH (SÄKERT & UTAN BUGGRISK)
+    // Eftersom formatet är tips/userID/matches/matchID/home letar vi direkt i userTips.matches
+    const pappersTip = userTips?.matches?.[match.id];
+    let minTippadeRadHTML = "";
+
+    if (pappersTip) {
+      const hTip = pappersTip.home;
+      const aTip = pappersTip.away;
+
+      // Kontrollera att det faktiskt finns sparade siffror i tipset
+      if (hTip !== undefined && hTip !== null && aTip !== undefined && aTip !== null) {
+        minTippadeRadHTML = `
+          <div class="user-match-badge" style="text-align: center; font-size: 0.85rem; color: #4b5563; margin-bottom: 8px; font-weight: 500; background: #f3f4f6; padding: 4px 12px; border-radius: 6px; display: inline-block;">
+            Mitt tips: <strong style="color: #111827;">${hTip} - ${aTip}</strong>
+          </div>
+        `;
+      }
     }
 
     // Skapar och returnerar det visuella "kortet" för matchen
@@ -85,30 +90,33 @@ const awayTeam = isPlayoff && (!match.awayTeam || match.awayTeam === "null")
       </div>
 
       <div class="match-status ${match.status}">
-        ${
-          match.status === "finished"
-            ? "Avslutad"
-            : match.status === "live"
-            ? "🔴 Live"
-            : "Kommande"
-        }
+        ${match.status === "finished"
+        ? "Avslutad"
+        : match.status === "live"
+          ? "🔴 Live"
+          : "Kommande"
+      }
       </div>
     </div>
 
-    <div class="match-center">
+    <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+      <div class="match-center" style="width: 100%;">
 
-      <div class="team">
-        <span class="team-name">${homeTeam}</span>
-        ${match.homeFlag ? `<img class="flag" src="${match.homeFlag}" />` : ""}
+        <div class="team">
+          <span class="team-name">${homeTeam}</span>
+          ${match.homeFlag ? `<img class="flag" src="${match.homeFlag}" />` : ""}
+        </div>
+
+        ${centerDisplayHTML}
+
+        <div class="team">
+          ${match.awayFlag ? `<img class="flag" src="${match.awayFlag}" />` : ""}
+          <span class="team-name">${awayTeam}</span>
+        </div>
+
       </div>
-
-      ${centerDisplayHTML}
-
-      <div class="team">
-        ${match.awayFlag ? `<img class="flag" src="${match.awayFlag}" />` : ""}
-        <span class="team-name">${awayTeam}</span>
-      </div>
-
+      
+      ${minTippadeRadHTML}
     </div>
 
     <div class="match-bottom">
@@ -118,9 +126,8 @@ const awayTeam = isPlayoff && (!match.awayTeam || match.awayTeam === "null")
 
   </div>
 `;
-  }).join(""); // Slår ihop alla match-kort till en enda lång textsträng av HTML
+  }).join("");
 
-  // Gjut in all nyskapad HTML-kod i vår behållare på skärmen
   matchesList.innerHTML = html;
   console.log("RENDERED MATCHES COUNT:", data.length);
 }
@@ -131,7 +138,7 @@ const awayTeam = isPlayoff && (!match.awayTeam || match.awayTeam === "null")
  */
 function filterMatches() {
   console.log("FILTER TRIGGERED");
-  
+
   // Skapar en kopia av alla matcher från vårt globala fönster-state (window.matches)
   let filtered = [...window.matches];
 
@@ -140,7 +147,8 @@ function filterMatches() {
     filtered = filtered.filter(m =>
       // Jämför matchens grupp med den valda gruppen (gör om till små bokstäver och rensar mellanslag för säkerhet)
       m.group?.trim().toLowerCase() === activeGroup?.trim().toLowerCase()
-    );  }
+    );
+  }
 
   // STEG 2: Filtrera på datum (om användaren har klickat i rutan "Dagens matcher")
   if (todaysMatchesOnly) {
@@ -149,11 +157,11 @@ function filterMatches() {
     // Sparar bara de matcher som har samma datum som idag
     filtered = filtered.filter(m => m.date === today);
   }
-    
+
   console.log("FILTERED RESULT:", filtered.length);
 
   // Skicka den färdigfiltrerade listan till skärmen så den ritas om
-  renderMatches(filtered);
+  renderMatches(filtered, window.userTips);
 }
 
 /**
@@ -163,7 +171,7 @@ export function initMatchFilters() {
   // Hämtar reglaget för dagens matcher samt rullistan för grupper från index.html
   const todayToggle = document.getElementById("today-toggle");
   const groupSelect = document.querySelector(".group-select");
-  
+
   // Lyssnar på om användaren slår på/av knappen för "Dagens matcher"
   todayToggle?.addEventListener("change", () => {
     todaysMatchesOnly = todayToggle.checked; // Sparar om den är ikryssad (true) eller inte (false)

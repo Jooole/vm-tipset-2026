@@ -209,7 +209,7 @@ async function initMatches(bypassCheck = false) {
 function renderAllUI(matches) {
   window.matches = matches;
 
-  renderMatches(matches);
+  renderMatches(matches, window.userTips);
   renderBettingMatches(matches);
 
   setAllTeams(getAllTeamsFromMatches(matches));
@@ -354,6 +354,7 @@ initAuthListener(async (user) => {
       console.log("Facit uppdaterades live från Firestore! Ritar om...");
       setActualResults(freshFacit);
       renderLeaderboard(); // Tvingar leaderboarden att räkna om och rita om live!
+      renderMatches(window.matches, window.userTips);
     });
 
     // 1. HÄMTA ANVÄNDARENS TIPS FRÅN FIREBASE FÖRST
@@ -378,6 +379,7 @@ initAuthListener(async (user) => {
 
       // Tvinga leaderboarden att ritas om med de färskaste poängen från servern!
       renderLeaderboard();
+      renderMatches(window.matches, window.userTips);
       console.log("Leaderboard och facit har synkats live med servern!");
     }).catch(err => console.log("Bakgrundssynk väntar på nätverk:", err));
 
@@ -707,7 +709,7 @@ initAuthListener(async (user) => {
     const merged = applyMatchUpdates(window.matches, updates);
     window.matches = merged;
 
-    renderMatches(window.matches);
+    renderMatches(window.matches, window.userTips);
     renderBettingMatches(window.matches);
   });
 
@@ -752,7 +754,7 @@ initAuthListener(async (user) => {
           localStorage.removeItem("matches_cache_time");
           await initMatches(true);
           if (window.matches && window.matches.length > 0) {
-            renderMatches(window.matches);
+            renderMatches(window.matches, window.userTips);
           }
         } catch (err) {
           console.error("Live-update failed during match:", err);
