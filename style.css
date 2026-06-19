@@ -233,7 +233,7 @@ nav {
 }
 
 /* ========================================
-   LOADING SPINNER
+   LOADING SPINNER (UPDATED WITH BACKDROP)
 ======================================== */
 
 /* Container som centrerar spinnern på sidan under headern */
@@ -253,11 +253,28 @@ nav {
     /* Tar upp resten av skärmen */
 
     background-color: transparent;
-    /* Ingen overlay, ditt vanliga sid-content kan ligga under */
+    /* Ingen fullskärms-overlay, så menyn går att klicka på */
     z-index: 999;
     /* Ligger ovanför content men stör inte headern */
     pointer-events: none;
     /* Gör att man kan klicka "igenom" tomrummet om det behövs */
+}
+
+/* 🌟 NYHET: En rundad, halvtransparent rektangel som lyfter fram laddningstexten */
+.inline-spinner-container::before {
+    content: "";
+    position: absolute;
+    width: 220px;
+    height: 160px;
+    background: rgba(0, 0, 0, 0.1);
+    /* Din nya bakgrund */
+    backdrop-filter: blur(6px);
+    /* Öka till 8px för mer "frostad" känsla mot mörkt */
+    -webkit-backdrop-filter: blur(6px);
+    border-radius: 16px;
+    box-shadow: none;
+    /* 🌟 Ta bort skuggan helt! */
+    z-index: -1;
 }
 
 /* Själva snurr-cirkeln */
@@ -267,20 +284,24 @@ nav {
     border: 4px solid rgba(26, 37, 54, 0.1);
     /* Ljus cirkel */
     border-radius: 50%;
-    border-top-color: #facc15;
-    /* Din gula profilfärg */
+    border-top-color: #2f6fed;
+    /* Ändrad till din snygga ljusblå primärfärg i stället för gul */
     animation: spin 1s linear infinite;
     pointer-events: auto;
-    /* Gör själva spinnern klickbar (om man mot förmodan skulle vilja det) */
+    /* Gör själva spinnern klickbar */
+    margin-top: -10px;
+    /* Centrerar upp den lite inuti rektangeln */
 }
 
 .inline-spinner-container p {
-    color: #1a2536;
-    /* Din mörkblå färg för texten så den syns på ljus bakgrund */
-    margin-top: 12px;
+    color: #111827;
+    /* Mörkgrå färg för bra kontrast mot den ljusa plattan */
+    margin-top: 16px;
     font-family: sans-serif;
     font-weight: 600;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
+    letter-spacing: -0.01em;
+    z-index: 1;
 }
 
 /* Klass för att dölja spinnern helt */
