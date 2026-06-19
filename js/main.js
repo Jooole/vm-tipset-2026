@@ -760,7 +760,7 @@ initAuthListener(async (user) => {
           console.error("Live-update failed during match:", err);
         }
 
-        nextCheckDelay = 10 * 60 * 1000; // 🌟 10 minuter till nästa koll
+        nextCheckDelay = 5 * 60 * 1000; // 🌟 10 minuter till nästa koll
 
       } else if (nextMatchStart) {
         // SCENARIO B: Sömnläge mellan matcher
