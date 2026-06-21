@@ -34,7 +34,8 @@ function isLockedForUI() {
 
 let hasLoadedMatches = false;
 let liveUpdateInterval = null;
-let previousLeaderboard = [];
+// Försök hämta sparad tabellhistorik från local storage så att trenden överlever omladdningar!
+let previousLeaderboard = JSON.parse(localStorage.getItem("vm_leaderboard_history")) || [];
 
 window.matches = [];
 window.allTips = [];
@@ -238,9 +239,9 @@ function getAllTeamsFromMatches(matches) {
 }
 
 // =========================
-// LEADERBOARD
+// LEADERBOARD (STRIKT OCH SÄKRAD TRENDLOGIK)
 // =========================
-async function renderLeaderboard(usersToUse, tipsToUse) {
+async function renderLeaderboard(usersToUse, tipsToUse, matchesToUse) {
   window.renderLeaderboard = renderLeaderboard;
   const tableBody = document.getElementById("leaderboard-body");
   if (!tableBody) return;
@@ -248,27 +249,28 @@ async function renderLeaderboard(usersToUse, tipsToUse) {
   const allUsers = usersToUse || await loadAllUsers();
   const allTipsList = tipsToUse || ((window.allTips && window.allTips.length > 0) ? window.allTips : []);
 
-  // Bygg leaderboard för ALLA användare
+  // 🌟 FIX: Använd de inskickade matcherna (viktigt för simulatorn) eller fönstret
+  const currentMatches = matchesToUse || window.matches || [];
+
+  // 1. Bygg nuvarande tabell baserat på gällande matcher
   const leaderboard = allUsers.map(user => {
     const tipsEntry = allTipsList.find(t => t.userId === user.userId);
-
-    // 🌟 FIXEN: Om användaren inte har några tips ännu, ge dem ett tomt objekt {} istället för att avbryta med null!
     const uTips = tipsEntry?.data || {};
 
     const points = calculateUserPoints({
       userTips: uTips,
-      matches: window.matches || [],
+      matches: currentMatches, // 🌟 Använder rätt match-array!
       actualResults
     });
 
     return {
       userId: user.userId,
       name: user.data?.displayName || user.userId,
-      points: points || 0 // Garantera att det blir en siffra (0) om poängen saknas
+      points: points || 0
     };
-  }); // 🌟 Tog bort .filter(Boolean) så att ingen rensas bort!
+  });
 
-  // Sortera: Högst poäng först. Om poängen är lika (t.ex. alla har 0), sortera alfabetiskt på namn.
+  // 2. Sortera tabellen (Poäng -> Namn)
   leaderboard.sort((a, b) => {
     if (b.points !== a.points) {
       return b.points - a.points;
@@ -276,40 +278,58 @@ async function renderLeaderboard(usersToUse, tipsToUse) {
     return a.name.localeCompare(b.name);
   });
 
-  // Rita ut i HTML
+  // 3. Hämta historiken
+  let historicalLeaderboard = JSON.parse(localStorage.getItem("vm_leaderboard_history"));
+
+  if (!historicalLeaderboard || historicalLeaderboard.length !== leaderboard.length) {
+    localStorage.setItem("vm_leaderboard_history", JSON.stringify(leaderboard));
+    historicalLeaderboard = [...leaderboard];
+  }
+
+  // 4. Kontrollera om poängen faktiskt skiljer sig från historiken
+  const hasScoreChanged = leaderboard.some(user => {
+    const histMatch = historicalLeaderboard.find(p => p.userId === user.userId);
+    return !histMatch || histMatch.points !== user.points;
+  });
+
+  // 5. Rita ut i HTML (Jämför nuvarande placering med historisk placering)
   tableBody.innerHTML = leaderboard.map((user, index) => {
-    // 🌟 1. BERÄKNA TREND: Hitta användarens förra placering i minnet
+    const currentRank = index + 1;
+
     let trendEmoji = "➔";
     let trendClass = "stable";
 
-    // Om vi har en sparad historik sedan tidigare, räkna ut skillnaden
-    if (previousLeaderboard && previousLeaderboard.length > 0) {
-      const prevIndex = previousLeaderboard.findIndex(p => p.userId === user.userId);
+    const prevIndex = historicalLeaderboard.findIndex(p => p.userId === user.userId);
 
-      if (prevIndex !== -1) {
-        // OBS! Ett lägre index betyder en bättre placering (t.ex. index 0 är 1:a plats)
-        if (index < prevIndex) {
-          trendEmoji = "⬆";
-          trendClass = "up";
-        } else if (index > prevIndex) {
-          trendEmoji = "⬇";
-          trendClass = "down";
-        }
+    if (prevIndex !== -1) {
+      const previousRank = prevIndex + 1;
+
+      if (currentRank < previousRank) {
+        trendEmoji = "▲";
+        trendClass = "up";
+      } else if (currentRank > previousRank) {
+        trendEmoji = "▼";
+        trendClass = "down";
       }
     }
 
     return `
       <tr>
-        <td class="rank-column">${index + 1}</td>
+        <td class="rank-column">${currentRank}</td>
         <td>${user.name}</td>
         <td class="points-column">${user.points}</td>
-        <td class="trend-column rank-change ${trendClass}">${trendEmoji}</td>
+        <td class="trend-column">
+          <span class="rank-change ${trendClass}">${trendEmoji}</span>
+        </td>
       </tr>
     `;
   }).join("");
 
-  // 🌟 2. SPARA UNDAN AKTELL PLACERING TILL NÄSTA LIVE-UPPDATERING
-  previousLeaderboard = [...leaderboard];
+  // 6. Spara historiken om poängen har ändrats på riktigt
+  if (hasScoreChanged) {
+    localStorage.setItem("vm_leaderboard_history", JSON.stringify(leaderboard));
+    console.log("⚽ Poängändring upptäckt! Ny tabellhistorik sparad.");
+  }
 }
 
 // =========================
