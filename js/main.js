@@ -375,6 +375,8 @@ initAuthListener(async (user) => {
       setActualResults(freshFacit);
       renderLeaderboard(); // Tvingar leaderboarden att räkna om och rita om live!
       renderMatches(window.matches, window.userTips);
+      // Uppdatera färgerna på "Mitt tips" direkt vid live-ändringar i databasen!
+      renderAllPlayoffRounds();
     });
 
     // 1. HÄMTA ANVÄNDARENS TIPS FRÅN FIREBASE FÖRST
@@ -395,11 +397,16 @@ initAuthListener(async (user) => {
     }
     // STARTA BAKGRUNDS-SYNK: Fråga Firebase-servern i tysthet om det finns nyare data
     Promise.all([loadActualResults(), loadAllUsers()]).then(([freshFacit]) => {
-      if (freshFacit) setActualResults(freshFacit);
+      if (freshFacit) {
+        setActualResults(freshFacit);
+        window.actualResults = freshFacit; // 🌟 SÄKRAR ATT BETTING.JS SER DATAN!
+      }
 
       // Tvinga leaderboarden att ritas om med de färskaste poängen från servern!
       renderLeaderboard();
       renderMatches(window.matches, window.userTips);
+      // Tvinga även slutspelets dropdowns att ritas om och rättas så fort facit laddat!
+      renderAllPlayoffRounds();
       console.log("Leaderboard och facit har synkats live med servern!");
     }).catch(err => console.log("Bakgrundssynk väntar på nätverk:", err));
 
@@ -424,6 +431,12 @@ initAuthListener(async (user) => {
     initMatchFilters();
     initNavigation();
     lockBettingUI();
+
+    // SÄKRA FÄRGERNA PÅ SIDA 1: Vänta ut betting.js-timern och färga alla rätta tips gröna direkt!
+    setTimeout(() => {
+      renderAllPlayoffRounds();
+      console.log("🟢 Första slutspelsrättningen är färgad och klar!");
+    }, 400);
 
     // 🌟 ADMIN-KONTROLL: KOMPLETT & ISOLERAD EXCEL-EXPORT
     const isAdmin = checkIsAdmin(user.uid);
