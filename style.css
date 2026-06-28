@@ -1340,3 +1340,14 @@ body:has(#login-btn) main {
 table {
     overflow-x: auto;
 }
+
+/* 🟢 STYLING FÖR RÄTTADE TIPS PÅ Sidan MITT TIPS */
+.tip-correct {
+    background-color: #ecfdf5 !important;
+    /* Ljus vacker grön bakgrund */
+    border-color: #10b981 !important;
+    /* Din gröna framgångsfärg */
+    color: #065f46 !important;
+    /* Mörkgrön text för perfekt kontrast */
+    font-weight: 600 !important;
+}

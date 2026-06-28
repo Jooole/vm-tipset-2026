@@ -64,8 +64,8 @@ function autoSave() {
     }
 
     // Fixa den avbrutna strukturen till en stabil klon
-    const payload = typeof structuredClone === "function" 
-      ? structuredClone(window.userTips) 
+    const payload = typeof structuredClone === "function"
+      ? structuredClone(window.userTips)
       : JSON.parse(JSON.stringify(window.userTips));
 
     console.log("Autosave triggad! Sparar till Firestore...", payload);
@@ -79,7 +79,7 @@ function autoSave() {
  * =========================
  */
 
- function renderBettingMatches(matches) {
+function renderBettingMatches(matches) {
   const container = document.getElementById("match-list");
   if (!container) return;
 
@@ -90,7 +90,7 @@ function autoSave() {
 
   // 🌟 1. SORTERA OCH GRUPPERA MATCHERNA UTAN ATT ÄNDRA ORIGINAL-ARRAYEN
   const groupedMatches = {};
-  
+
   groupMatches.forEach((match, index) => {
     const groupName = match.group || "Övriga grupper";
     if (!groupedMatches[groupName]) {
@@ -184,32 +184,73 @@ function setAllTeams(teams) {
 }
 
 function renderPlayoffRound({ containerId, title, slots }) {
-
   const container = document.getElementById(containerId);
   if (!container) return;
 
-  const selections =
-  window.userTips?.playoffs?.[containerId] || {};
+  const selections = window.userTips?.playoffs?.[containerId] || {};
+  const facit = window.actualResults || {};
+
+  const facitKey = {
+    "round-of-32": "roundOf32",
+    "round-of-16": "roundOf16",
+    "quarterfinals": "quarterfinals",
+    "semifinals": "semifinals",
+    "final": "final",
+    "winner": "winner"
+  }[containerId];
+
+  // 🇸🇪 En spegellista för att säkert göra om svenska namn till engelska vid jämförelse
+  const tillEngelska = {
+    "Algeriet": "Algeria", "Argentina": "Argentina", "Australien": "Australia", "Österrike": "Austria",
+    "Belgien": "Belgium", "Bosnien och Hercegovina": "Bosnia-Herzegovina", "Brasilien": "Brazil",
+    "Kanada": "Canada", "Kap Verde": "Cabo Verde", "Colombia": "Colombia", "Kongo-Kinshasa": "Congo DR",
+    "Elfenbenskusten": "Côte d'Ivoire", "Kroatien": "Croatia", "Curaçao": "Curaçao", "Tjeckien": "Czechia",
+    "Danmark": "Denmark", "Ecuador": "Ecuador", "Egypten": "Egypt", "England": "England",
+    "Frankrike": "France", "Tyskland": "Germany", "Ghana": "Ghana", "Haiti": "Haiti", "Iran": "IR Iran",
+    "Irak": "Iraq", "Japan": "Japan", "Jordanien": "Jordan", "Sydkorea": "Korea Republic",
+    "Mexiko": "Mexico", "Marocko": "Morocco", "Nederländerna": "Netherlands", "Nya Zeeland": "New Zealand",
+    "Norge": "Norway", "Panama": "Panama", "Paraguay": "Paraguay", "Polen": "Poland", "Portugal": "Portugal",
+    "Qatar": "Qatar", "Saudiarabien": "Saudi Arabia", "Skottland": "Scotland", "Senegal": "Senegal",
+    "Sydafrika": "South Africa", "Spanien": "Spain", "Sverige": "Sweden", "Schweiz": "Switzerland",
+    "Tunisien": "Tunisia", "Turkiet": "Turkey", "Uruguay": "Uruguay", "USA": "USA", "Uzbekistan": "Uzbekistan"
+  };
 
   let html = `<h4>${title}</h4>`;
 
   for (let i = 0; i < slots; i++) {
+    const rawSelection = selections[i] || "";
 
-    const selectedTeam = selections[i] || "";
+    // 🌟 TVINGA FRAM ENGELSKA: Om namnet är på svenska, översätt det till engelska, annars behåll det som det är.
+    const selectedTeam = (tillEngelska[rawSelection.trim()] || rawSelection).toLowerCase().trim();
 
     const availableTeams = allTeams.filter(team =>
       !Object.values(selections).includes(team) ||
-      team === selectedTeam
+      team === rawSelection
     );
 
+    let correctClass = "";
+    if (selectedTeam && facitKey && facit[facitKey]) {
+      if (containerId === "winner") {
+        if (facit[facitKey].toLowerCase().trim() === selectedTeam) {
+          correctClass = "tip-correct";
+        }
+      } else if (Array.isArray(facit[facitKey])) {
+        // Jämför det garanterat engelska tippade namnet mot API-facit
+        const finnsIFacit = facit[facitKey].some(t => t.toLowerCase().trim() === selectedTeam);
+        if (finnsIFacit) {
+          correctClass = "tip-correct";
+        }
+      }
+    }
+
     html += `
-      <select class="playoff-select input-base betting-input"
+      <select class="playoff-select input-base betting-input ${correctClass}"
         data-round="${containerId}"
         data-slot="${i}">
         <option value="">Välj lag</option>
 
         ${availableTeams.map(team => `
-          <option value="${team}" ${team === selectedTeam ? "selected" : ""}>
+          <option value="${team}" ${team === rawSelection ? "selected" : ""}>
             ${window.translateTeam(team)}
           </option>
         `).join("")}
@@ -312,7 +353,7 @@ function initTopscorerAutocomplete(players) {
     players.forEach(player => {
       // player är nu ett objekt: { name: "...", country: "..." }
       const matchesSearch = player.name.toLowerCase().includes(filterText.toLowerCase().trim());
-      
+
       if (matchesSearch) {
         if (!grouped[player.country]) {
           grouped[player.country] = [];
@@ -338,45 +379,45 @@ function initTopscorerAutocomplete(players) {
 
         // När man klickar på en spelare, välj den och spara till state
         // Variabler högre upp eller precis innan för att hålla koll på scroll
-let touchStartHeight = 0;
-let isScrolling = false;
+        let touchStartHeight = 0;
+        let isScrolling = false;
 
-// ... inuti din loop där du skapar spelarraderna ...
+        // ... inuti din loop där du skapar spelarraderna ...
 
-// 1. När fingret sätts ner, spara startpositionen
-item.ontouchstart = (e) => {
-  touchStartHeight = e.touches[0].clientY;
-  isScrolling = false;
-};
+        // 1. När fingret sätts ner, spara startpositionen
+        item.ontouchstart = (e) => {
+          touchStartHeight = e.touches[0].clientY;
+          isScrolling = false;
+        };
 
-// 2. Om fingret rör sig mer än 10 pixlar i höjdled, tolka det som en scroll!
-item.ontouchmove = (e) => {
-  const currentHeight = e.touches[0].clientY;
-  if (Math.abs(touchStartHeight - currentHeight) > 10) {
-    isScrolling = true; 
-  }
-};
+        // 2. Om fingret rör sig mer än 10 pixlar i höjdled, tolka det som en scroll!
+        item.ontouchmove = (e) => {
+          const currentHeight = e.touches[0].clientY;
+          if (Math.abs(touchStartHeight - currentHeight) > 10) {
+            isScrolling = true;
+          }
+        };
 
-// 3. När fingret lyfts, välj bara spelaren om användaren INTE scrollade
-item.ontouchend = (e) => {
-  if (isScrolling) return; // Användaren scrollar bara, avbryt stängning!
+        // 3. När fingret lyfts, välj bara spelaren om användaren INTE scrollade
+        item.ontouchend = (e) => {
+          if (isScrolling) return; // Användaren scrollar bara, avbryt stängning!
 
-  e.preventDefault(); // Stoppa falska musklick
-  
-  input.value = playerName;
-  results.classList.remove("show"); // Göm dropdownen säkert
-  updateState("topScorer", playerName); // Sparar valet till Firestore
-};
+          e.preventDefault(); // Stoppa falska musklick
 
-// 4. Fallback för vanliga datormöss (desktop) så att det fortfarande går att klicka där
-item.onmousedown = (e) => {
-  // Körs bara om det är en riktig mus (inte touch)
-  if (e.button === 0) { 
-    input.value = playerName;
-    results.classList.remove("show");
-    updateState("topScorer", playerName);
-  }
-};
+          input.value = playerName;
+          results.classList.remove("show"); // Göm dropdownen säkert
+          updateState("topScorer", playerName); // Sparar valet till Firestore
+        };
+
+        // 4. Fallback för vanliga datormöss (desktop) så att det fortfarande går att klicka där
+        item.onmousedown = (e) => {
+          // Körs bara om det är en riktig mus (inte touch)
+          if (e.button === 0) {
+            input.value = playerName;
+            results.classList.remove("show");
+            updateState("topScorer", playerName);
+          }
+        };
 
         results.appendChild(item);
       });
@@ -461,18 +502,18 @@ export function fillInputsFromState() {
 function hydrateBettingUI() {
   renderBettingMatches(window.matches || []);
   renderAllPlayoffRounds();
-  
+
   // Vi väntar 200 millisekunder så att alla rullistor och textfält 
   // har hunnit ritas ut på skärmen, sen stoppar vi in all sparad data!
   setTimeout(() => {
     fillInputsFromState(); // Fyller i matcherna (t.ex. 2-1)
     hydrateTopScorer();    // Fyller i namnet på skytteligavinnaren
     hydrateGoals();        // Fyller i antalet mål
-    
+
     // Vi tvingar även slutspelets rullistor att ritas om en gång till 
     // nu när de garanterat vet vad användaren har tippat
-    renderAllPlayoffRounds(); 
-    
+    renderAllPlayoffRounds();
+
     console.log("Allt slutspels- och skytteligadata har tryckts in i UI!");
   }, 200);
 }
@@ -481,14 +522,32 @@ function hydrateTopScorer() {
   const input = document.getElementById("topscorer-input");
   if (!input) return;
 
-  input.value = window.userTips?.topScorer || "";
+  const tippadSpelare = window.userTips?.topScorer || "";
+  input.value = tippadSpelare;
+
+  // Rätta mot facit
+  const facitSkyttekung = window.actualResults?.topScorer || "";
+  if (tippadSpelare && facitSkyttekung && tippadSpelare.trim().toLowerCase() === facitSkyttekung.trim().toLowerCase()) {
+    input.classList.add("tip-correct");
+  } else {
+    input.classList.remove("tip-correct");
+  }
 }
 
 function hydrateGoals() {
   const input = document.getElementById("goals-input");
   if (!input) return;
 
-  input.value = window.userTips?.goals ?? "";
+  const tippadeMal = window.userTips?.goals;
+  input.value = tippadeMal ?? "";
+
+  // Rätta mot facit (Räkna bara om facit-målen är registrerade och över 0)
+  const facitMal = Number(window.actualResults?.topScorerGoals || 0);
+  if (tippadeMal !== undefined && tippadeMal !== null && facitMal > 0 && Number(tippadeMal) === facitMal) {
+    input.classList.add("tip-correct");
+  } else {
+    input.classList.remove("tip-correct");
+  }
 }
 
 /**
