@@ -238,7 +238,7 @@ function hamtaSlutspelsPlaceholder(matchId, side) {
   const id = Number(matchId);
 
   // ==========================================
-  // 16-DELSFINALER (Matchas mot dina API-id:n)
+  // 16-DELSFINALER (round: "R32")
   // ==========================================
   if (id === 82) return side === "home" ? "Tvåa Grupp A" : "Tvåa Grupp B";
   if (id === 95) return side === "home" ? "Vinnare Grupp C" : "Tvåa Grupp F";
@@ -255,41 +255,37 @@ function hamtaSlutspelsPlaceholder(matchId, side) {
   if (id === 97) return side === "home" ? "Vinnare Grupp B" : "Bästa trea (B/E/F/G/I/J)";
   if (id === 78) return side === "home" ? "Tvåa Grupp D" : "Tvåa Grupp G";
   if (id === 86) return side === "home" ? "Vinnare Grupp J" : "Tvåa Grupp H";
-  if (id === 80) return side === "home" ? "Vinnare Grupp K" : "Bästa trea (D/E/I/J/L)";
+  if (id === 91) return side === "home" ? "Vinnare Grupp M" : "Bästa trea (A/B/G/H/L)";
 
   // ==========================================
-  // ÅTTONDELSFINALER
+  // ÅTTONDELSFINALER (round: "R16")
   // ==========================================
-  if (id === 91) return side === "home" ? "Vinnare match 73" : "Vinnare match 75";
-  if (id === 94) return side === "home" ? "Vinnare match 74" : "Vinnare match 77";
-  if (id === 89) return side === "home" ? "Vinnare match 76" : "Vinnare match 78";
-  if (id === 74) return side === "home" ? "Vinnare match 79" : "Vinnare match 80";
-  if (id === 99) return side === "home" ? "Vinnare match 76" : "Vinnare match 78";
-  if (id === 77) return side === "home" ? "Vinnare match 79" : "Vinnare match 80";
-  if (id === 87) return side === "home" ? "Vinnare match 81" : "Vinnare match 82";
-  if (id === 103) return side === "home" ? "Vinnare match 83" : "Vinnare match 84";
+  if (id === 94) return side === "home" ? "Vinnare match 82" : "Vinnare match 95";
+  if (id === 89) return side === "home" ? "Vinnare match 93" : "Vinnare match 101";
+  if (id === 74) return side === "home" ? "Vinnare match 79" : "Vinnare match 75";
+  if (id === 99) return side === "home" ? "Vinnare match 100" : "Vinnare match 104";
+  if (id === 77) return side === "home" ? "Vinnare match 88" : "Vinnare match 83";
+  if (id === 87) return side === "home" ? "Vinnare match 81" : "Vinnare match 98";
+  if (id === 103) return side === "home" ? "Vinnare match 97" : "Vinnare match 78";
+  if (id === 96) return side === "home" ? "Vinnare match 86" : "Vinnare match 91"; // 👈 Det är matchen som vinnaren av Ghana möter!
 
   // ==========================================
-  // KVARTSFINALER
+  // KVARTSFINALER (round: "QF")
   // ==========================================
-  if (id === 96) return side === "home" ? "Vinnare match 89" : "Vinnare match 90";
-  if (id === 92) return side === "home" ? "Vinnare match 93" : "Vinnare match 94";
-  if (id === 85) return side === "home" ? "Vinnare match 91" : "Vinnare match 92";
-  if (id === 90) return side === "home" ? "Vinnare match 95" : "Vinnare match 96";
+  if (id === 92) return side === "home" ? "Vinnare Åttondel 1" : "Vinnare Åttondel 2";
+  if (id === 80) return side === "home" ? "Vinnare Åttondel 3" : "Vinnare Åttondel 4";
+  if (id === 85) return side === "home" ? "Vinnare Åttondel 5" : "Vinnare Åttondel 6";
+  if (id === 90) return side === "home" ? "Vinnare Åttondel 7" : "Vinnare Åttondel 8";
 
   // ==========================================
-  // SEMIFINALER
+  // SEMIFINALER, BRONSMATCH OCH FINAL
   // ==========================================
-  if (id === 76) return side === "home" ? "Vinnare match 97" : "Vinnare match 98";
-  if (id === 102) return side === "home" ? "Vinnare match 99" : "Vinnare match 100";
+  if (id === 76) return side === "home" ? "Vinnare Kvartsfinal 1" : "Vinnare Kvartsfinal 2";
+  if (id === 102) return side === "home" ? "Vinnare Kvartsfinal 3" : "Vinnare Kvartsfinal 4";
 
-  // ==========================================
-  // BRONSMATCH OCH FINAL
-  // ==========================================
-  if (id === 84) return side === "home" ? "Förlorare match 93" : "Förlorare match 94"; // Bronsmatch
-  if (id === 73) return side === "home" ? "Vinnare match 101" : "Vinnare match 102"; // 🏆 VM-FINALEN!
+  if (id === 84) return side === "home" ? "Förlorare Semifinal 1" : "Förlorare Semifinal 2";
+  if (id === 73) return side === "home" ? "Vinnare Semifinal 1" : "Vinnare Semifinal 2";
 
-  // Säkerhetsreserv om något ID skulle saknas
   return side === "home" ? "Slutspelslag A" : "Slutspelslag B";
 }
 
@@ -299,25 +295,17 @@ function hamtaSlutspelsPlaceholder(matchId, side) {
 function hamtaRundNamn(id) {
   const matchId = Number(id);
 
-  // 1. VM-FINAL (Match 73 i ditt API)
+  // Vi mappar rundorna strikt efter hur ID-numren är tilldelade i ditt nätverkssvar
   if (matchId === 73) return "🏆 FINAL";
-
-  // 2. BRONSMATCH (Match 84 i ditt API)
   if (matchId === 84) return "Bronsmatch";
-
-  // 3. SEMIFINALER (Match 76 och 102 i ditt API)
   if (matchId === 76 || matchId === 102) return "Semifinal";
 
-  // 4. KVARTSFINALER (Match 85, 90, 92, 96 i ditt API)
-  if ([85, 90, 92, 96].includes(matchId)) return "Kvartsfinal";
+  // Kvartsfinaler (round: "QF" i API:et)
+  if ([92, 80, 85, 90].includes(matchId)) return "Kvartsfinal";
 
-  // 5. ÅTTONDELSFINALER (Match 74, 77, 87, 89, 91, 94, 99, 103 i ditt API)
-  if ([74, 77, 87, 89, 91, 94, 99, 103].includes(matchId)) return "Åttondelsfinal";
+  // Åttondelsfinaler (round: "R16" i API:et)
+  if ([94, 89, 74, 99, 77, 87, 103].includes(matchId)) return "Åttondelsfinal";
 
-  // 6. 16-DELSFINALER (Alla övriga slutspels-ID:n i din lista)
-  const r32Ids = [82, 95, 93, 101, 79, 75, 100, 104, 88, 83, 81, 98, 97, 78, 86, 80];
-  if (r32Ids.includes(matchId)) return "16-delsfinal";
-
-  // Fallback om något ID inte skulle träffas
-  return "Slutspel";
+  // 16-delsfinaler (round: "R32" i API:et - Här ingår match 91 och 104!)
+  return "16-delsfinal";
 }
