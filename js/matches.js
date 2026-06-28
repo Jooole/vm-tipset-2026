@@ -120,7 +120,9 @@ export function renderMatches(data, userTips = window.userTips || {}) {
     </div>
 
     <div class="match-bottom">
-      <span>${match.group}</span>
+      <span>
+        ${match.group === "Slutspel" ? hamtaRundNamn(match.id) : match.group}
+      </span>
       <span>${match.stadium}</span>
     </div>
 
@@ -289,4 +291,33 @@ function hamtaSlutspelsPlaceholder(matchId, side) {
 
   // Säkerhetsreserv om något ID skulle saknas
   return side === "home" ? "Slutspelslag A" : "Slutspelslag B";
+}
+
+// ==========================================
+// HJÄLPFUNKTION FÖR ATT GÖRA "SLUTSPEL" MER SPECIFIKT PÅ MATCHKORTEN
+// ==========================================
+function hamtaRundNamn(id) {
+  const matchId = Number(id);
+
+  // 1. VM-FINAL (Match 73 i ditt API)
+  if (matchId === 73) return "🏆 FINAL";
+
+  // 2. BRONSMATCH (Match 84 i ditt API)
+  if (matchId === 84) return "Bronsmatch";
+
+  // 3. SEMIFINALER (Match 76 och 102 i ditt API)
+  if (matchId === 76 || matchId === 102) return "Semifinal";
+
+  // 4. KVARTSFINALER (Match 85, 90, 92, 96 i ditt API)
+  if ([85, 90, 92, 96].includes(matchId)) return "Kvartsfinal";
+
+  // 5. ÅTTONDELSFINALER (Match 74, 77, 87, 89, 91, 94, 99, 103 i ditt API)
+  if ([74, 77, 87, 89, 91, 94, 99, 103].includes(matchId)) return "Åttondelsfinal";
+
+  // 6. 16-DELSFINALER (Alla övriga slutspels-ID:n i din lista)
+  const r32Ids = [82, 95, 93, 101, 79, 75, 100, 104, 88, 83, 81, 98, 97, 78, 86, 80];
+  if (r32Ids.includes(matchId)) return "16-delsfinal";
+
+  // Fallback om något ID inte skulle träffas
+  return "Slutspel";
 }
