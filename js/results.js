@@ -198,12 +198,24 @@ export function calculateUserPoints({
    * =========================
    */
 
-  if (
-    userTips.topScorer &&
-    actualResults.topScorer &&
-    userTips.topScorer.trim().toLowerCase() === actualResults.topScorer.trim().toLowerCase()
-  ) {
-    total += POINTS.topScorer;
+  /**
+   * =========================
+   * TOP SCORER (STÖD FÖR DELAD VINST)
+   * =========================
+   */
+
+  if (userTips.topScorer && actualResults.topScorer) {
+    const tippadSkytt = userTips.topScorer.trim().toLowerCase();
+
+    // Delar upp facit-strängen vid kommatecken till en array med godkända vinnare
+    const godkandaVinnare = actualResults.topScorer
+      .split(",")
+      .map(namn => namn.trim().toLowerCase());
+
+    // Om deltagarens tips finns med i listan -> Ge poäng!
+    if (godkandaVinnare.includes(tippadSkytt)) {
+      total += POINTS.topScorer;
+    }
   }
 
   // SÄKERHETSSPÄRR: Räkna bara poäng om skytteligavinnaren faktiskt har gjort minst 1 mål i facit!

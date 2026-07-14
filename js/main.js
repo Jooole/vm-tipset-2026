@@ -1044,14 +1044,16 @@ function renderFinalSummaryHTML() {
     }
   });
 
-  // Skyttekungens profeter
-  const rättSkytt = leaderboard.filter(u => u.userTips?.topScorer && window.actualResults?.topScorer && u.userTips.topScorer.trim().toLowerCase() === window.actualResults.topScorer.trim().toLowerCase()).map(u => u.name);
+  // Skyttekungens profeter (Hanterar delad skytteligavinst via kommatecken i facit)
+  const rättSkytt = leaderboard.filter(u => {
+    const tippadSkytt = u.userTips?.topScorer?.trim().toLowerCase();
+    const faktiskSkyttSträng = window.actualResults?.topScorer;
 
-  // VM-mästarens profeter (De som tippade rätt guldlag!)
-  const rättVinnare = leaderboard.filter(u => {
-    const tippadVinnare = u.userTips?.playoffs?.winner?.["winner-0"]; // Plockar ut vinnaren från slutspelsträdet
-    const faktiskVinnare = window.actualResults?.winner;
-    return tippadVinnare && faktiskVinnare && tippadVinnare.trim().toLowerCase() === faktiskVinnare.trim().toLowerCase();
+    if (!tippadSkytt || !faktiskSkyttSträng) return false;
+
+    // Splittar facit till en array vid eventuella kommatecken
+    const godkandaVinnare = faktiskSkyttSträng.split(",").map(n => n.trim().toLowerCase());
+    return godkandaVinnare.includes(tippadSkytt);
   }).map(u => u.name);
 
   // 4. GENERERA HTML-STRÄNGEN
