@@ -1351,3 +1351,323 @@ table {
     /* Mörkgrön text för perfekt kontrast */
     font-weight: 600 !important;
 }
+
+
+/* ========================================
+   🏆 MODERN & MINIMALISTISK SLUTCEREMONIVY
+======================================== */
+
+/* 1. HERO: Rent, luftigt och stilrent (Matchar ditt övre startkort) */
+.final-hero {
+    text-align: center;
+    background: #ffffff !important;
+    border: 1px solid var(--color-border) !important;
+    color: #222 !important;
+    padding: 3rem 2rem !important;
+    border-radius: 12px !important;
+    margin-bottom: 2rem !important;
+    box-shadow: var(--shadow-soft) !important;
+}
+
+.final-hero h2 {
+    font-size: 2.25rem !important;
+    color: #111827 !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.03em !important;
+    margin-bottom: 0.75rem !important;
+}
+
+.final-hero p {
+    color: var(--muted-foreground) !important;
+    font-size: 1.1rem !important;
+    max-width: 600px !important;
+    margin: 0 auto !important;
+}
+
+/* 2. MODERN PRISPALL (Vi skrotar de tunga blocken helt!) */
+.podium-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 1.5rem;
+    margin: 3.5rem auto 1.5rem auto;
+    max-width: 750px;
+    padding: 0 1rem;
+}
+
+.podium-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1 1 0% !important;
+    min-width: 0 !important;
+    text-align: center;
+    border-radius: 16px !important;
+    /* Lite rundare för modern look */
+    padding: 2rem 1rem !important;
+    background: #ffffff !important;
+    border: 1px solid var(--color-border) !important;
+    box-shadow: var(--shadow-soft) !important;
+    transition: transform 0.2s ease;
+}
+
+/* Subtil nivåskillnad på desktop genom snygg scaling istället för stela höjder */
+.gold {
+    transform: scale(1.05);
+    border: 2px solid #fbbf24 !important;
+    /* Tydlig men tunn guldlinje */
+    z-index: 5;
+}
+
+.silver {
+    transform: scale(0.98);
+}
+
+.brons {
+    transform: scale(0.95);
+}
+
+/* Istället för färgblock i botten kör vi en elegant, svävande medalj-cirkel överst */
+.podium-medal {
+    font-size: 1.5rem;
+    font-weight: 700;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin-bottom: 1.25rem;
+}
+
+/* Elegant färgsättning av medalj-cirklarna som matchar appens minimalistiska ton */
+.gold .podium-medal {
+    background: #fef3c7;
+    color: #d97706;
+    border: 1px solid #fde68a;
+}
+
+.silver .podium-medal {
+    background: #f3f4f6;
+    color: #4b5563;
+    border: 1px solid #e5e7eb;
+}
+
+.brons .podium-medal {
+    background: #ffedd5;
+    color: #c2410c;
+    border: 1px solid #fed7aa;
+}
+
+/* Döljer de gamla färgblocken i botten */
+.podium-block {
+    display: none !important;
+}
+
+.podium-name {
+    font-weight: 700 !important;
+    font-size: 1.25rem !important;
+    color: #111827 !important;
+    margin-bottom: 8px !important;
+    padding: 0 4px !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+/* Poäng-badgen: Exakt kopia av .rule-points utseende från din screenshot */
+.podium-points {
+    font-family: var(--font-mono);
+    font-size: 1.05rem !important;
+    font-weight: 700 !important;
+    color: #111827 !important;
+    background: #f4f4f4 !important;
+    width: 64px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px !important;
+    margin-bottom: 12px !important;
+}
+
+.podium-prize {
+    font-weight: 700 !important;
+    color: var(--color-success) !important;
+    font-size: 1.05rem !important;
+    margin-bottom: 0 !important;
+}
+
+/* 3. KNAPPEN (Matchar din startsidas knappar perfekt) */
+.view-all-results-container {
+    width: 100%;
+    text-align: center;
+    margin: 2rem 0 2rem 0;
+}
+
+.view-all-results-btn {
+    background-color: var(--color-primary) !important;
+    color: white !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    padding: 0.75rem 1.5rem !important;
+    border: none !important;
+    border-radius: 6px !important;
+    cursor: pointer;
+    box-shadow: none !important;
+    transition: background-color 0.15s ease;
+}
+
+.view-all-results-btn:hover {
+    background-color: #1d4ed8 !important;
+}
+
+/* 4. STATISTIKVÄGGEN (Stilrent rutnät med samma padding som poängkorten) */
+.stats-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+    gap: 1.25rem !important;
+    margin: 2rem 0 4rem 0 !important;
+    width: 100% !important;
+}
+
+.stats-card.section-title-card {
+    grid-column: 1 / -1 !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 2rem 0 0.5rem 0 !important;
+    box-shadow: none !important;
+}
+
+.section-title-card h3 {
+    font-size: 1.5rem !important;
+    color: #111827 !important;
+    font-weight: 700 !important;
+}
+
+/* Statistikkorten speglar .rule-card perfekt nu */
+.stats-card {
+    background: #ffffff !important;
+    border: 1px solid var(--color-border) !important;
+    border-radius: 12px !important;
+    padding: 1.5rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    box-shadow: var(--shadow-soft) !important;
+}
+
+.stats-label {
+    font-size: 0.85rem !important;
+    color: var(--muted-foreground) !important;
+    font-weight: 600 !important;
+    margin-bottom: 6px !important;
+}
+
+.stats-value {
+    font-size: 1.2rem !important;
+    font-weight: 700 !important;
+    color: #111827 !important;
+    line-height: 1.4 !important;
+}
+
+/* 5. AVSLUTANDE FOOTER OCH FEEDBACK-RUTAN */
+.final-footer {
+    text-align: center;
+    margin-top: 2rem;
+    border-top: 1px solid var(--color-border);
+}
+
+.final-footer p {
+    font-size: 1.1rem;
+    color: #111827;
+    font-weight: 600;
+}
+
+.feedback-box {
+    max-width: 600px;
+    margin: 2rem auto 0 auto;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: left;
+}
+
+.feedback-box h4 {
+    color: #1e40af;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.feedback-box p {
+    font-size: 0.95rem;
+    color: #1e3a8a;
+    line-height: 1.5;
+}
+
+/* MOBIL-ANPASSNING */
+@media (max-width: 600px) {
+    .podium-container {
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 1.25rem !important;
+    }
+
+    .podium-step {
+        width: 100% !important;
+        max-width: 320px !important;
+        transform: none !important;
+        /* Tar bort scaling på mobil */
+        padding: 1.5rem 1rem !important;
+    }
+
+    .gold {
+        order: 1;
+    }
+
+    .silver {
+        order: 2;
+    }
+
+    .brons {
+        order: 3;
+    }
+}
+
+/* MOBIL-ANPASSNING */
+@media (max-width: 500px) {
+
+    /* 🌟 NYTT: Minskar rubriken på mobilen så den inte bryts fult eller tar för mycket plats */
+    .final-hero h2 {
+        font-size: 1.75rem !important;
+        /* Ändra till 1.4rem eller 1.6rem om du vill justera mer */
+    }
+
+    .podium-container {
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 1.25rem !important;
+    }
+
+    .podium-step {
+        width: 100% !important;
+        max-width: 320px !important;
+        transform: none !important;
+        padding: 1.5rem 1rem !important;
+    }
+
+    .gold {
+        order: 1;
+    }
+
+    .silver {
+        order: 2;
+    }
+
+    .brons {
+        order: 3;
+    }
+}

@@ -407,6 +407,9 @@ initAuthListener(async (user) => {
       renderMatches(window.matches, window.userTips);
       // Tvinga även slutspelets dropdowns att ritas om och rättas så fort facit laddat!
       renderAllPlayoffRounds();
+      // Kontrollera om finalen är avgjord och rita i så fall ut Hall of Fame!
+      renderFinalSummaryHTML();
+
       console.log("Leaderboard och facit har synkats live med servern!");
     }).catch(err => console.log("Bakgrundssynk väntar på nätverk:", err));
 
@@ -435,6 +438,8 @@ initAuthListener(async (user) => {
     // SÄKRA FÄRGERNA PÅ SIDA 1: Vänta ut betting.js-timern och färga alla rätta tips gröna direkt!
     setTimeout(() => {
       renderAllPlayoffRounds();
+      // Kör kollen om finalen har spelats färdigt vid första sidladdningen!
+      renderFinalSummaryHTML();
       console.log("🟢 Första slutspelsrättningen är färgad och klar!");
     }, 400);
 
@@ -896,3 +901,255 @@ if (DEV_MODE) {
     console.log("%c[DEV MODE] Simulering klar!", "color: #10b981; font-weight: bold;");
   };
 }
+
+
+// 🏆 GENERERA OCH RETA UT SLUTCEREMONIN (HALL OF FAME & STATS)
+// DEN HÄR VYN SKA VISAS FÖRST NÄR VM-FINALEN HAR SPELATS FÄRDIGT
+function renderFinalSummaryHTML() {
+  const endedContainer = document.getElementById("playoff-ended-view");
+  const defaultContainer = document.getElementById("default-home-view");
+  if (!endedContainer || !defaultContainer) return;
+
+  // Kontrollera om finalen (id 73) är färdigspelad
+  const finalMatch = window.matches?.find(m => Number(m.id) === 73);
+  const isFinalFinished = finalMatch && finalMatch.status === "finished";
+
+  if (!isFinalFinished) {
+    endedContainer.innerHTML = "";
+    defaultContainer.style.display = "block";
+    return;
+  }
+
+  // Om finalen är klar – dölj standardvyn och generera Hall of Fame!
+  defaultContainer.style.display = "none";
+
+  // 1. Beräkna den fullständiga sluttabellen
+  const leaderboard = (window.allUsers || []).map(user => {
+    const tipsEntry = window.allTips?.find(t => t.userId === user.userId);
+    const uTips = tipsEntry?.data || {};
+    const points = calculateUserPoints({ userTips: uTips, matches: window.matches, actualResults: window.actualResults });
+    return { name: user.data?.displayName || "Okänd", points: points || 0, userTips: uTips };
+  });
+
+  // Sortera: Flest poäng först
+  leaderboard.sort((a, b) => b.points - a.points);
+
+  // 2. Beräkna prispotten. Räknar bara med deltagare som faktiskt lämnat in tips (points > 0 eller giltiga tips)
+  const betalandeDeltagare = leaderboard.filter(u => u.points > 0 || Object.keys(u.userTips?.matches || {}).length > 0);
+  const inkop = 100;
+  const totalPott = betalandeDeltagare.length * inkop;
+
+  // 🌟 UPPDATERAD PROCENTFÖRDELNING: 50% / 30% / 20%
+  const vinst1 = Math.round(totalPott * 0.50);
+  const vinst2 = Math.round(totalPott * 0.30);
+  const vinst3 = Math.round(totalPott * 0.20);
+
+  // 🌟 DYNAMISK POTTDELNING VID DELADE PLATSER
+  const p1 = leaderboard[0] ? { ...leaderboard[0], prize: 0 } : { name: "-", points: 0, prize: 0 };
+  const p2 = leaderboard[1] ? { ...leaderboard[1], prize: 0 } : { name: "-", points: 0, prize: 0 };
+  const p3 = leaderboard[2] ? { ...leaderboard[2], prize: 0 } : { name: "-", points: 0, prize: 0 };
+
+  if (totalPott > 0 && leaderboard.length > 0) {
+    const pts1 = p1.points;
+    const pts2 = p2.points;
+    const pts3 = p3.points;
+    const pts4 = leaderboard[3] ? leaderboard[3].points : -1;
+    const pts5 = leaderboard[4] ? leaderboard[4].points : -1;
+
+    // SCENARIO 1: Alla tre i toppen har exakt samma poäng (3 delar på första)
+    if (pts1 === pts2 && pts2 === pts3) {
+      const deladPott3 = Math.round((vinst1 + vinst2 + vinst3) / 3);
+      p1.prize = deladPott3;
+      p2.prize = deladPott3;
+      p3.prize = deladPott3;
+    }
+    // SCENARIO 2: Två personer delar på förstaplatsen
+    else if (pts1 === pts2) {
+      const deladPott2 = Math.round((vinst1 + vinst2) / 2);
+      p1.prize = deladPott2;
+      p2.prize = deladPott2;
+
+      // Kolla om 3:an delar sin poäng med 4:an och 5:an
+      let antalSomDelarTrean = 1;
+      if (pts3 === pts4) antalSomDelarTrean = 2;
+      if (pts3 === pts4 && pts3 === pts5) antalSomDelarTrean = 3;
+
+      p3.prize = Math.round(vinst3 / antalSomDelarTrean);
+    }
+    // SCENARIO 3: Ensam vinnare, men 2:an och 3:an delar på andraplatsen
+    else if (pts2 === pts3) {
+      const deladPottAndra = Math.round((vinst2 + vinst3) / 2);
+      p1.prize = vinst1; // Ensam vinnare får hela förstapriset (50%)
+      p2.prize = deladPottAndra;
+      p3.prize = deladPottAndra;
+    }
+    // SCENARIO 4: Ensam 1:a, ensam 2:a, men 3:e platsen delas med folk utanför pallen
+    else {
+      p1.prize = vinst1;
+      p2.prize = vinst2;
+
+      let antalSomDelarTrean = 1;
+      if (pts3 === pts4) antalSomDelarTrean = 2;
+      if (pts3 === pts4 && pts3 === pts5) antalSomDelarTrean = 3;
+
+      p3.prize = Math.round(vinst3 / antalSomDelarTrean);
+    }
+  }
+
+  // 3. BERÄKNA UTSTÄMPLINGAR & STATISTIK
+  const totalDeltagare = leaderboard.length;
+  const aktivaDeltagare = leaderboard.filter(u => u.points > 0);
+  const ligansSnitt = aktivaDeltagare.length > 0 ? Math.round(aktivaDeltagare.reduce((sum, u) => sum + u.points, 0) / aktivaDeltagare.length) : 0;
+
+  // Funktion för att hitta vem som hade flest rätt i en specifik array/slutspelsrunda
+  function hämtaSlutspelsMästare(facitKey, userPlayoffKey) {
+    let maxRätt = -1;
+    let vinnare = [];
+
+    const räknaRätt = (predicted, actual) => {
+      if (!predicted || !actual) return 0;
+      const cleanActual = actual.map(t => String(t).trim().toLowerCase());
+      return Object.values(predicted).filter(t => cleanActual.includes(String(t).trim().toLowerCase())).length;
+    };
+
+    leaderboard.forEach(u => {
+      const rättAnat = räknaRätt(u.userTips?.playoffs?.[userPlayoffKey], window.actualResults?.[facitKey]);
+      if (rättAnat > maxRätt) {
+        maxRätt = rättAnat;
+        vinnare = [u.name];
+      } else if (rättAnat === maxRätt && maxRätt > 0) {
+        vinnare.push(u.name);
+      }
+    });
+    return maxRätt > 0 ? `${vinnare.join(", ")} (${maxRätt} lag rätt)` : "Ingen prickade rätt";
+  }
+
+  // Flest korrekta resultat i gruppspelet (4-poängare)
+  let maxGruppSpikar = -1;
+  let gruppVinnare = [];
+  leaderboard.forEach(u => {
+    let spikar = 0;
+    window.matches.filter(m => m.group && !m.group.includes("Slutspel")).forEach((m, idx) => {
+      const matchId = m.id || `${m.homeTeam}-${m.awayTeam}-${idx}`;
+      const pred = u.userTips?.matches?.[matchId];
+      if (pred && m.homeScore !== null && Number(pred.home) === Number(m.homeScore) && Number(pred.away) === Number(m.awayScore)) {
+        spikar++;
+      }
+    });
+    if (spikar > maxGruppSpikar) {
+      maxGruppSpikar = spikar;
+      gruppVinnare = [u.name];
+    } else if (spikar === maxGruppSpikar && maxGruppSpikar > 0) {
+      gruppVinnare.push(u.name);
+    }
+  });
+
+  // Skyttekungens profeter
+  const rättSkytt = leaderboard.filter(u => u.userTips?.topScorer && window.actualResults?.topScorer && u.userTips.topScorer.trim().toLowerCase() === window.actualResults.topScorer.trim().toLowerCase()).map(u => u.name);
+
+  // VM-mästarens profeter (De som tippade rätt guldlag!)
+  const rättVinnare = leaderboard.filter(u => {
+    const tippadVinnare = u.userTips?.playoffs?.winner?.["winner-0"]; // Plockar ut vinnaren från slutspelsträdet
+    const faktiskVinnare = window.actualResults?.winner;
+    return tippadVinnare && faktiskVinnare && tippadVinnare.trim().toLowerCase() === faktiskVinnare.trim().toLowerCase();
+  }).map(u => u.name);
+
+  // 4. GENERERA HTML-STRÄNGEN
+  endedContainer.innerHTML = `
+    <div class="final-hero">
+      <h2>🏆 VM-TIPSET 2026 ÄR AVGJORT!</h2>
+      <p>Efter 104 matcher av spänning, dramatik och sena kvällar har vi fått en slutgiltig vinnare i tipsligan.</p>
+    </div>
+
+    <div class="podium-container">
+      
+      <div class="podium-step silver">
+        <span class="podium-medal">2</span> <div class="podium-name">${p2.name}</div>
+        <div class="podium-points">${p2.points} p</div>
+        <div class="podium-prize">${p2.prize > 0 ? p2.prize + ' kr' : '0 kr'}</div>
+      </div>
+
+      <div class="podium-step gold">
+        <span class="podium-medal">1</span> <div class="podium-name">${p1.name}</div>
+        <div class="podium-points">${p1.points} p</div>
+        <div class="podium-prize">${p1.prize > 0 ? p1.prize + ' kr' : '0 kr'}</div>
+      </div>
+
+      <div class="podium-step brons">
+        <span class="podium-medal">3</span> <div class="podium-name">${p3.name}</div>
+        <div class="podium-points">${p3.points} p</div>
+        <div class="podium-prize">${p3.prize > 0 ? p3.prize + ' kr' : '0 kr'}</div>
+      </div>
+
+    </div>
+
+    <div style="text-align: center; margin: 2.5rem 0 3rem 0;">
+      <button class="view-all-results-btn" onclick="window.location.hash='resultat'">
+        Visa alla resultat
+      </button>
+    </div>
+
+    <div class="stats-grid">
+      
+      <div class="stats-card section-title-card">
+        <h3>Statistik från tippningen</h3>
+      </div>
+      
+      <div class="stats-card">
+        <div class="stats-label">Ligans genomsnitt</div>
+        <div class="stats-value">${ligansSnitt} poäng</div>
+      </div>
+
+      <div class="stats-card">
+        <div class="stats-label">Flest spikade resultat</div>
+        <div class="stats-value">${maxGruppSpikar > 0 ? `${gruppVinnare.join(", ")} (${maxGruppSpikar} st)` : "-"}</div>
+      </div>
+
+      <div class="stats-card">
+        <div class="stats-label">Rätt målskytt</div>
+        <div class="stats-value">${rättSkytt.length > 0 ? rättSkytt.join(", ") : "Ingen prickade rätt"}</div>
+      </div>
+
+      <div class="stats-card">
+        <div class="stats-label">Flest korrekta lag till 16-delsfinal</div>
+        <div class="stats-value">${hämtaSlutspelsMästare("roundOf32", "round-of-32")}</div>
+      </div>
+
+      <div class="stats-card">
+        <div class="stats-label">Flest korrekta lag till 8-delsfinal</div>
+        <div class="stats-value">${hämtaSlutspelsMästare("roundOf16", "round-of-16")}</div>
+      </div>
+
+      <div class="stats-card">
+        <div class="stats-label">Flest korrekta lag till Kvartsfinal</div>
+        <div class="stats-value">${hämtaSlutspelsMästare("quarterfinals", "quarterfinals")}</div>
+      </div>
+
+      <div class="stats-card">
+        <div class="stats-label">Flest korrekta lag till Semifinal</div>
+        <div class="stats-value">${hämtaSlutspelsMästare("semifinals", "semifinals")}</div>
+      </div>
+
+      <div class="stats-card">
+        <div class="stats-label">Flest korrekta lag till Final</div>
+        <div class="stats-value">${hämtaSlutspelsMästare("final", "final")}</div>
+      </div>
+
+      <div class="stats-card">
+        <div class="stats-label">Tippade rätt världsmästare</div>
+        <div class="stats-value">
+          ${rättVinnare.length > 0 ? rättVinnare.join(", ") : "Ingen prickade rätt"}
+        </div>
+      </div>
+
+    </div>
+
+    <div class="final-footer">
+      <div class="feedback-box">
+        <h4>Hur kan vi förbättra appen?</h4>
+        <p>Du får jättegärna ge feedback på appen och berätta vad du tyckte var bra eller vad vi kan förbättra till nästa mästerskap. Skicka dina tankar och idéer till Staffan på <a href="mailto:cykelgubben@telia.com">cykelgubben@telia.com</a>.</p>
+      </div>
+    </div>
+  `;
+}
+window.renderFinalSummaryHTML = renderFinalSummaryHTML;
