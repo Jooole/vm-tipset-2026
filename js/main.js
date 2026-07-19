@@ -1056,6 +1056,13 @@ function renderFinalSummaryHTML() {
     return godkandaVinnare.includes(tippadSkytt);
   }).map(u => u.name);
 
+  // 🌟 FIX: VM-mästarens profeter flyttad hit upp och deklareras ordentligt innan HTML-kod!
+  const rättVinnare = leaderboard.filter(u => {
+    const tippadVinnare = u.userTips?.playoffs?.winner?.["winner-0"];
+    const faktiskVinnare = window.actualResults?.winner;
+    return tippadVinnare && faktiskVinnare && tippadVinnare.trim().toLowerCase() === faktiskVinnare.trim().toLowerCase();
+  }).map(u => u.name);
+
   // 4. GENERERA HTML-STRÄNGEN
   endedContainer.innerHTML = `
     <div class="final-hero">
