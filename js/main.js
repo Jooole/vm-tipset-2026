@@ -923,9 +923,22 @@ function renderFinalSummaryHTML() {
   // Om finalen är klar – dölj standardvyn och generera Hall of Fame!
   defaultContainer.style.display = "none";
 
-  // 1. Beräkna den fullständiga sluttabellen
-  const leaderboard = (window.allUsers || []).map(user => {
-    const tipsEntry = window.allTips?.find(t => t.userId === user.userId);
+  // 1. 🌟 FELSÄKRAD DATAINSLUSSNING: Hämtar användarna och tipsen oavsett var de ligger i minnet
+  const aktivaAnvandare = (window.allUsers && window.allUsers.length > 0)
+    ? window.allUsers
+    : (typeof allUsers !== "undefined" ? allUsers : []);
+
+  const aktivaTips = (window.allTips && window.allTips.length > 0)
+    ? window.allTips
+    : [];
+
+  // Om Firebase-data precis är på väg in, gör en snabb omkörning om en liten stund
+  if (aktivaAnvandare.length === 0) {
+    setTimeout(() => renderFinalSummaryHTML(), 300);
+  }
+
+  const leaderboard = aktivaAnvandare.map(user => {
+    const tipsEntry = aktivaTips.find(t => t.userId === user.userId);
     const uTips = tipsEntry?.data || {};
     const points = calculateUserPoints({ userTips: uTips, matches: window.matches, actualResults: window.actualResults });
     return { name: user.data?.displayName || "Okänd", points: points || 0, userTips: uTips };
