@@ -395,23 +395,40 @@ initAuthListener(async (user) => {
       console.log("Hämtning av andras tips blockeras av säkerhetsreglerna fram till 7 juni. Helt normalt.");
       window.allTips = []; // Sätt till en tom lista så länge
     }
-    // STARTA BAKGRUNDS-SYNK: Fråga Firebase-servern i tysthet om det finns nyare data
-    Promise.all([loadActualResults(), loadAllUsers()]).then(([freshFacit]) => {
-      if (freshFacit) {
-        setActualResults(freshFacit);
-        window.actualResults = freshFacit; // 🌟 SÄKRAR ATT BETTING.JS SER DATAN!
-      }
+    // STARTA BAKGRUNDS-SYNK: Hämtar facit och deltagare och säkrar datan globalt!
+    Promise.all([loadActualResults(), loadAllUsers()])
+      .then(([freshFacit, freshUsers]) => {
 
-      // Tvinga leaderboarden att ritas om med de färskaste poängen från servern!
-      renderLeaderboard();
-      renderMatches(window.matches, window.userTips);
-      // Tvinga även slutspelets dropdowns att ritas om och rättas så fort facit laddat!
-      renderAllPlayoffRounds();
-      // Kontrollera om finalen är avgjord och rita i så fall ut Hall of Fame!
-      renderFinalSummaryHTML();
+        if (freshFacit) {
+          setActualResults(freshFacit);
+          window.actualResults = freshFacit;
+        }
 
-      console.log("Leaderboard och facit har synkats live med servern!");
-    }).catch(err => console.log("Bakgrundssynk väntar på nätverk:", err));
+        if (freshUsers && freshUsers.length > 0) {
+          window.allUsers = freshUsers;
+          console.log("Användarlistan har sparats i globala minnet!");
+        }
+
+        // Tvinga allt att ritas om med den skarpa datan från servern
+        renderLeaderboard();
+        renderMatches(window.matches, window.userTips);
+        renderAllPlayoffRounds();
+        renderFinalSummaryHTML();
+
+        console.log("Leaderboard och facit har synkats live med servern!");
+      })
+      .catch(err => {
+        console.log("Bakgrundssynk stötte på ett fel, aktiverar lokal backup:", err);
+
+        // KRAFTFULL BACKUP: Om anropet nekas, läs in namnen från localStorage-historiken!
+        if (!window.allUsers || window.allUsers.length === 0) {
+          const localHist = JSON.parse(localStorage.getItem("vm_leaderboard_history")) || [];
+          if (localHist.length > 0) {
+            window.allUsers = localHist.map(h => ({ userId: h.userId, data: { displayName: h.name } }));
+          }
+        }
+        renderFinalSummaryHTML();
+      });
 
     console.log("Firebase-data laddad och klar!");
 
