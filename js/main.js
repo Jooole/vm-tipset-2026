@@ -1086,11 +1086,19 @@ function renderFinalSummaryHTML() {
     return godkandaVinnare.includes(tippadSkytt);
   }).map(u => u.name);
 
-  // 🌟 FIX: VM-mästarens profeter flyttad hit upp och deklareras ordentligt innan HTML-kod!
+  // 🌟 UPPDATERAD: VM-mästarens profeter (Hanterar nyckeln '0' och språkkrockar!)
   const rättVinnare = leaderboard.filter(u => {
-    const tippadVinnare = u.userTips?.playoffs?.winner?.["winner-0"];
+    // Kollar både gamla "winner-0" och ditt faktiska format u.userTips?.playoffs?.winner?.[0]
+    const tippadVinnare = u.userTips?.playoffs?.winner?.[0] || u.userTips?.playoffs?.winner?.["winner-0"];
     const faktiskVinnare = window.actualResults?.winner;
-    return tippadVinnare && faktiskVinnare && tippadVinnare.trim().toLowerCase() === faktiskVinnare.trim().toLowerCase();
+
+    if (!tippadVinnare || !faktiskVinnare) return false;
+
+    // Kör genom translateTeam så att "Spain" och "Spanien" båda matchar perfekt!
+    const svenskTippad = window.translateTeam(tippadVinnare).trim().toLowerCase();
+    const svenskFaktisk = window.translateTeam(faktiskVinnare).trim().toLowerCase();
+
+    return svenskTippad === svenskFaktisk;
   }).map(u => u.name);
 
   // 4. GENERERA HTML-STRÄNGEN
